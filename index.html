@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
       .maybeSingle()
     if(error || !data) return alert('invalid username or password')
     setCookie('user', JSON.stringify({ id: data.id, username: data.username }), 7)
-    location.href = 'home.html'
+    location.href = '/home'
   })
 })
 </script>
@@ -53,11 +53,10 @@ document.addEventListener('DOMContentLoaded', ()=>{
       <input id="password" type="password" placeholder="Password" required><br>
       <button type="submit">Login</button>
     </form>
-    <p class="note">Welcome Back.</p>
-    <p>No Account? <a href="signup.html">Sign Up</a></p>
+    <p class="note">login To Continue</p>
+    <p>No Account? <a href="/signup">Sign Up</a></p>
   </div>
   <footer>
-    <a href="contact.html">Contact</a>
     <div>Idawn™</div>
   </footer>
 </body>
