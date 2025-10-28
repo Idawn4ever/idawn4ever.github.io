@@ -1,0 +1,47 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Sign Up</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+  :root{--bg:#000;--fg:lime;}
+  html,body{height:100%;margin:0;background:var(--bg);color:var(--fg);font-family:monospace}
+  .wrap{max-width:420px;margin:80px auto;text-align:center}
+  input{width:90%;padding:8px;margin:8px 0;background:#111;border:1px solid var(--fg);color:var(--fg)}
+  button{padding:8px 16px;background:var(--fg);color:#000;border:none;cursor:pointer}
+  a{color:var(--fg)}
+</style>
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+const supabase = createClient("https://thdzrkzdkdihjximoalb.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRoZHpya3pka2RpaGp4aW1vYWxiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAyNDkzNzIsImV4cCI6MjA3NTgyNTM3Mn0.uHpGricbNHVWsndClTd8K7LVRTCzWLF0ziwuGKvOSTw")
+
+document.addEventListener('DOMContentLoaded', ()=>{
+  const form = document.getElementById('signupForm')
+  form.addEventListener('submit', async (e)=>{
+    e.preventDefault()
+    const username = document.getElementById('username').value.trim()
+    const password = document.getElementById('password').value
+    if(!username || !password) return alert('enter username & password')
+    const { data: existing } = await supabase.from('users').select('id').eq('username', username).maybeSingle()
+    if(existing) return alert('username taken')
+    const { error } = await supabase.from('users').insert([{ username, password }])
+    if(error) return alert(error.message || 'signup failed')
+    alert('created — you can login now')
+    location.href = 'index.html'
+  })
+})
+</script>
+</head>
+<body>
+  <div class="wrap">
+    <h2>Sign Up</h2>
+    <form id="signupForm">
+      <input id="username" type="text" placeholder="Username" required><br>
+      <input id="password" type="password" placeholder="Password" required><br>
+      <button type="submit">Sign Up</button>
+    </form>
+    <p>have account? <a href="index.html">login</a></p>
+  </div>
+</body>
+</html>

@@ -1,0 +1,58 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Login</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+  :root{--bg:#000;--fg:lime;}
+  html,body{height:100%;margin:0;background:var(--bg);color:var(--fg);font-family:monospace}
+  .wrap{max-width:420px;margin:80px auto;text-align:center}
+  input{width:90%;padding:8px;margin:8px 0;background:#111;border:1px solid var(--fg);color:var(--fg)}
+  button{padding:8px 16px;background:var(--fg);color:#000;border:none;cursor:pointer}
+  a{color:var(--fg)}
+  .note{opacity:.9;font-size:13px}
+</style>
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+const supabase = createClient("https://thdzrkzdkdihjximoalb.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRoZHpya3pka2RpaGp4aW1vYWxiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAyNDkzNzIsImV4cCI6MjA3NTgyNTM3Mn0.uHpGricbNHVWsndClTd8K7LVRTCzWLF0ziwuGKvOSTw")
+
+function setCookie(name,value,days){
+  const max = days ? `; max-age=${days*24*60*60}` : ''
+  document.cookie = name + '=' + encodeURIComponent(value) + '; path=/' + max
+}
+
+document.addEventListener('DOMContentLoaded', ()=>{
+  if(document.cookie.split('; ').some(c=>c.startsWith('user='))) return location.href='home.html'
+  const form = document.getElementById('loginForm')
+  form.addEventListener('submit', async (e)=>{
+    e.preventDefault()
+    const username = document.getElementById('username').value.trim()
+    const password = document.getElementById('password').value
+    if(!username || !password) return alert('enter username & password')
+    const { data, error } = await supabase
+      .from('users')
+      .select('id,username')
+      .eq('username', username)
+      .eq('password', password)
+      .maybeSingle()
+    if(error || !data) return alert('invalid username or password')
+    setCookie('user', JSON.stringify({ id: data.id, username: data.username }), 7)
+    location.href = 'home.html'
+  })
+})
+</script>
+</head>
+<body>
+  <div class="wrap">
+    <h2>Login</h2>
+    <form id="loginForm">
+      <input id="username" type="text" placeholder="Username" required><br>
+      <input id="password" type="password" placeholder="Password" required><br>
+      <button type="submit">Login</button>
+    </form>
+    <p class="note">No email — username + password only.</p>
+    <p>no account? <a href="signup.html">sign up</a></p>
+  </div>
+</body>
+</html>
