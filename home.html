@@ -35,6 +35,10 @@
     justify-content:space-between;
   }
   .sidebar.show{right:0;visibility:visible;opacity:1}
+  .sidebar-content{
+    overflow-y:auto;
+    flex-grow:1;
+  }
   .menu-links{
     display:flex;
     flex-direction:column;
@@ -67,12 +71,15 @@
   .overlay.show{display:block}
   .content{padding:24px;text-align:center}
   .welcome-box{
-    display:inline-block;
     border:1px solid var(--fg);
-    border-radius:8px;
-    padding:16px 24px;
-    width:80%;
-    max-width:700px;
+    padding:24px;
+    margin:0 16px;
+    border-radius:4px;
+  }
+  .welcome-msg{
+    margin:0;
+    padding-bottom:12px;
+    border-bottom:1px solid var(--fg);
   }
   footer{position:fixed;bottom:0;width:100%;text-align:center;font-size:13px;padding:8px 0;border-top:1px solid rgba(255,255,255,0.03)}
   footer a{color:var(--fg);margin:0 8px;text-decoration:none}
@@ -118,13 +125,13 @@ document.addEventListener('DOMContentLoaded', ()=>{
   </div>
 
   <div id="sidebar" class="sidebar">
-    <div>
+    <div class="sidebar-content">
       <div>Account</div>
       <div style="margin-top:10px">Logged in as <strong id="uname2"></strong></div>
 
       <div class="menu-links">
         <a href="/livechat">Live Chat</a>
-        <a href="/leaks">leaks</a>
+        <a href="/Leaks">Leaks</a>
         <a href="/shop">Shop</a>
       </div>
     </div>
@@ -136,7 +143,10 @@ document.addEventListener('DOMContentLoaded', ()=>{
 
   <div class="content">
     <div class="welcome-box">
-      <p id="welcomeMsg">Welcome Back</p>
+      <p id="welcomeMsg" class="welcome-msg">Welcome Back</p>
+      <div id="extraContent" style="padding-top:12px;">
+        <!-- Additional content goes here under the line -->
+      </div>
     </div>
   </div>
 
