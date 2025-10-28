@@ -38,7 +38,7 @@
   .sidebar-scroll{
     overflow-y:auto;
     flex-grow:1;
-    margin-bottom:16px; /* space above logout button */
+    margin-bottom:16px;
   }
   .menu-links{
     display:flex;
@@ -70,17 +70,25 @@
   }
   .overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);z-index:99}
   .overlay.show{display:block}
-  .content{padding:24px;text-align:center}
+  .content{padding:24px;text-align:center; margin-bottom:40px;} /* bottom gap for footer */
   .welcome-box{
     border:1px solid var(--fg);
     padding:24px;
-    margin:0 16px;
+    margin:0 16px 16px 16px;
     border-radius:4px;
+    height:calc(100vh - 64px - 32px - 24px); /* full height minus top bar, footer, padding */
+    display:flex;
+    flex-direction:column;
   }
   .welcome-msg{
     margin:0;
     padding-bottom:12px;
     border-bottom:1px solid var(--fg);
+  }
+  .extra-content{
+    flex-grow:1;
+    padding-top:12px;
+    overflow-y:auto;
   }
   footer{position:fixed;bottom:0;width:100%;text-align:center;font-size:13px;padding:8px 0;border-top:1px solid rgba(255,255,255,0.03)}
   footer a{color:var(--fg);margin:0 8px;text-decoration:none}
@@ -129,14 +137,12 @@ document.addEventListener('DOMContentLoaded', ()=>{
     <div class="sidebar-scroll">
       <div>Account</div>
       <div style="margin-top:10px">Logged in as <strong id="uname2"></strong></div>
-
       <div class="menu-links">
         <a href="/livechat">Live Chat</a>
         <a href="/leaks">Leaks</a>
         <a href="/shop">Shop</a>
       </div>
     </div>
-
     <button id="logout" style="margin-bottom:16px;">Log Out</button>
   </div>
 
@@ -145,8 +151,8 @@ document.addEventListener('DOMContentLoaded', ()=>{
   <div class="content">
     <div class="welcome-box">
       <p id="welcomeMsg" class="welcome-msg">Welcome Back</p>
-      <div id="extraContent" style="padding-top:12px;">
-        <!-- Additional content goes here under the line -->
+      <div class="extra-content" id="extraContent">
+        <!-- Future content goes here -->
       </div>
     </div>
   </div>
@@ -154,5 +160,4 @@ document.addEventListener('DOMContentLoaded', ()=>{
   <footer>
     <a href="/contact">Contact</a> | Idawn™
   </footer>
-</body>
-</html>
+</
