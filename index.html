@@ -10,8 +10,10 @@
   .wrap{max-width:420px;margin:80px auto;text-align:center}
   input{width:90%;padding:8px;margin:8px 0;background:#111;border:1px solid var(--fg);color:var(--fg)}
   button{padding:8px 16px;background:var(--fg);color:#000;border:none;cursor:pointer}
-  a{color:var(--fg)}
+  a{color:var(--fg);text-decoration:none}
   .note{opacity:.9;font-size:13px}
+  footer{padding:10px 16px;border-top:1px solid rgba(255,255,255,0.05);display:flex;justify-content:space-between;font-size:13px;opacity:.8;position:fixed;bottom:0;width:100%}
+  footer a{color:var(--fg);text-decoration:none}
 </style>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
@@ -54,5 +56,9 @@ document.addEventListener('DOMContentLoaded', ()=>{
     <p class="note">Welcome Back.</p>
     <p>No Account? <a href="signup.html">Sign Up</a></p>
   </div>
+  <footer>
+    <a href="contact.html">Contact</a>
+    <div>Idawn™</div>
+  </footer>
 </body>
 </html>
