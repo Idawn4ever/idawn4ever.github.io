@@ -35,9 +35,10 @@
     justify-content:space-between;
   }
   .sidebar.show{right:0;visibility:visible;opacity:1}
-  .sidebar-content{
+  .sidebar-scroll{
     overflow-y:auto;
     flex-grow:1;
+    margin-bottom:16px; /* space above logout button */
   }
   .menu-links{
     display:flex;
@@ -125,18 +126,18 @@ document.addEventListener('DOMContentLoaded', ()=>{
   </div>
 
   <div id="sidebar" class="sidebar">
-    <div class="sidebar-content">
+    <div class="sidebar-scroll">
       <div>Account</div>
       <div style="margin-top:10px">Logged in as <strong id="uname2"></strong></div>
 
       <div class="menu-links">
         <a href="/livechat">Live Chat</a>
-        <a href="/Leaks">Leaks</a>
+        <a href="/leaks">Leaks</a>
         <a href="/shop">Shop</a>
       </div>
     </div>
 
-    <button id="logout">Log Out</button>
+    <button id="logout" style="margin-bottom:16px;">Log Out</button>
   </div>
 
   <div id="overlay" class="overlay"></div>
