@@ -8,7 +8,7 @@
   :root{--bg:#000;--fg:lime;}
   html,body{height:100%;margin:0;background:var(--bg);color:var(--fg);font-family:monospace}
   .top{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid rgba(255,255,255,0.03)}
-  .brand{font-weight:700}
+  .brand{font-weight:700;cursor:pointer;background:none;border:none;color:var(--fg);font-family:inherit;font-size:inherit}
   .menu-btn{cursor:pointer;width:28px;height:20px;position:relative;border:none;background:transparent}
   .menu-btn span,
   .menu-btn::before,
@@ -43,6 +43,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
   const sidebar = document.getElementById('sidebar')
   const overlay = document.getElementById('overlay')
   const menuBtn = document.getElementById('menuBtn')
+  const homeBtn = document.getElementById('homeBtn')
 
   const toggleSidebar = (show)=>{
     sidebar.classList.toggle('show', show)
@@ -51,6 +52,8 @@ document.addEventListener('DOMContentLoaded', ()=>{
 
   menuBtn.addEventListener('click', ()=> toggleSidebar(!sidebar.classList.contains('show')))
   overlay.addEventListener('click', ()=> toggleSidebar(false))
+
+  homeBtn.addEventListener('click', ()=> location.href='home.html')
 
   document.getElementById('logout').addEventListener('click', ()=>{
     clearCookie('user')
@@ -61,7 +64,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
 </head>
 <body>
   <div class="top">
-    <div class="brand">Home</div>
+    <button id="homeBtn" class="brand">Home</button>
     <button id="menuBtn" class="menu-btn"><span></span></button>
   </div>
 
