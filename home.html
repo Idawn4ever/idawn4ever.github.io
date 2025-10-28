@@ -10,34 +10,80 @@
   .top{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid rgba(255,255,255,0.03)}
   .brand{font-weight:700}
   .userbtn{cursor:pointer;padding:6px 10px;border:1px solid var(--fg);border-radius:6px;background:transparent}
-  .sidebar{position:fixed;right:-260px;top:0;height:100%;width:260px;background:#050505;border-left:1px solid rgba(255,255,255,0.03);padding:16px;transition:right .22s}
+  /* desktop sidebar */
+  .sidebar{position:fixed;right:-260px;top:0;height:100%;width:260px;background:#050505;border-left:1px solid rgba(255,255,255,0.03);padding:16px;transition:right .22s;z-index:40}
   .sidebar.show{right:0}
   .sidebar button{display:block;margin-top:16px;padding:8px;border:none;background:var(--fg);color:#000;cursor:pointer;width:100%}
   .content{padding:24px}
+  /* overlay for mobile and desktop when sidebar open */
+  .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:30}
+  .overlay.show{display:block}
+  /* mobile styles */
+  @media (max-width:767px){
+    .top{padding:10px}
+    .brand{font-size:16px}
+    .userbtn{padding:8px;border-radius:8px}
+    /* make sidebar full width from right on mobile */
+    .sidebar{width:100%;right:-100%;left:auto;top:0;border-left:none;border-top-left-radius:0;transition:right .22s}
+    .sidebar.show{right:0}
+    .content{padding:16px}
+  }
 </style>
 <script>
-function getCookie(name){{
+function getCookie(name){
   const c = document.cookie.split('; ').find(r=>r.startsWith(name+'='))
   if(!c) return null
-  try{{ return JSON.parse(decodeURIComponent(c.split('=')[1])) }}catch(e){{ return null }}
-}}
+  try{ return JSON.parse(decodeURIComponent(c.split('=')[1])) }catch(e){ return null }
+}
 
 function clearCookie(name){ document.cookie = name + '=; path=/; max-age=0' }
 
-document.addEventListener('DOMContentLoaded', ()=>{{
+function isMobileDevice(){ 
+  return /Mobi|Android|iPhone|iPad|iPod/.test(navigator.userAgent) || window.innerWidth < 768
+}
+
+document.addEventListener('DOMContentLoaded', ()=>{
   const user = getCookie('user')
   if(!user) return location.href='index.html'
-  document.getElementById('uname').textContent = user.username
-  document.getElementById('uname2').textContent = user.username
+  // fill username
+  const unameEls = document.querySelectorAll('#uname, #uname2')
+  unameEls.forEach(el=> el.textContent = user.username)
 
   const sidebar = document.getElementById('sidebar')
-  document.getElementById('userBtn').addEventListener('click', ()=> sidebar.classList.toggle('show'))
+  const overlay = document.getElementById('overlay')
+  const userBtn = document.getElementById('userBtn')
+  const logoutBtn = document.getElementById('logout')
 
-  document.getElementById('logout').addEventListener('click', ()=>{{
+  function openSidebar(){
+    sidebar.classList.add('show')
+    overlay.classList.add('show')
+    // for mobile, optionally prevent body scroll
+    if(isMobileDevice()) document.body.style.overflow = 'hidden'
+  }
+  function closeSidebar(){
+    sidebar.classList.remove('show')
+    overlay.classList.remove('show')
+    document.body.style.overflow = ''
+  }
+
+  userBtn.addEventListener('click', ()=>{
+    if(sidebar.classList.contains('show')) closeSidebar()
+    else openSidebar()
+  })
+
+  overlay.addEventListener('click', closeSidebar)
+
+  // close on escape
+  document.addEventListener('keydown', (e)=>{ if(e.key === 'Escape') closeSidebar() })
+
+  logoutBtn.addEventListener('click', ()=>{
     clearCookie('user')
     location.href = 'index.html'
-  }})
-}})
+  })
+
+  // if on desktop, keep original layout (already default)
+  // if on mobile, we already adjusted styles via media query and JS (no further action needed)
+})
 </script>
 </head>
 <body>
@@ -48,11 +94,13 @@ document.addEventListener('DOMContentLoaded', ()=>{{
     </div>
   </div>
 
-  <div id="sidebar" class="sidebar">
+  <div id="sidebar" class="sidebar" aria-hidden="true">
     <div>Account</div>
     <div style="margin-top:10px">Logged in as <strong id="uname2"></strong></div>
     <button id="logout">Log Out</button>
   </div>
+
+  <div id="overlay" class="overlay" tabindex="-1"></div>
 
   <div class="content">
     <h1>Home</h1>
