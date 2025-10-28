@@ -9,7 +9,7 @@
   html,body{height:100%;margin:0;background:var(--bg);color:var(--fg);font-family:monospace}
   .top{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid rgba(255,255,255,0.03)}
   #homeLink{display:inline-block;text-decoration:none}
-  #logo{height:42px;width:auto;display:block}
+  #logo{height:37px;width:auto;display:block}
   .menu-btn{cursor:pointer;width:28px;height:20px;position:relative;border:none;background:transparent}
   .menu-btn span,
   .menu-btn::before,
@@ -17,13 +17,63 @@
   .menu-btn span{top:9px;}
   .menu-btn::before{top:0;}
   .menu-btn::after{bottom:0;}
-  .sidebar{position:fixed;right:-260px;top:0;height:100%;width:260px;background:#050505;border-left:1px solid rgba(255,255,255,0.03);padding:16px;transition:right .3s ease;z-index:100;visibility:hidden;opacity:0}
+  .sidebar{
+    position:fixed;
+    right:-260px;
+    top:0;
+    height:100%;
+    width:260px;
+    background:#050505;
+    border-left:1px solid rgba(255,255,255,0.03);
+    padding:16px;
+    transition:right .3s ease;
+    z-index:100;
+    visibility:hidden;
+    opacity:0;
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+  }
   .sidebar.show{right:0;visibility:visible;opacity:1}
+  .menu-links{
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+    margin-top:20px;
+  }
+  .menu-links a{
+    border:1px solid var(--fg);
+    border-radius:8px;
+    padding:10px;
+    text-align:center;
+    text-decoration:none;
+    color:var(--fg);
+    transition:.2s;
+  }
+  .menu-links a:hover{
+    background:var(--fg);
+    color:#000;
+  }
+  .sidebar button{
+    border:none;
+    background:var(--fg);
+    color:#000;
+    cursor:pointer;
+    padding:10px;
+    border-radius:8px;
+    width:100%;
+  }
   .overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);z-index:99}
   .overlay.show{display:block}
-  .sidebar button{display:block;margin-top:12px;padding:8px;border:none;background:var(--fg);color:#000;cursor:pointer;width:100%;font-family:monospace}
   .content{padding:24px;text-align:center}
-  .welcome-box{border:1px solid var(--fg);padding:20px;border-radius:6px;max-width:90%;margin:0 auto;text-align:center;display:block;}
+  .welcome-box{
+    display:inline-block;
+    border:1px solid var(--fg);
+    border-radius:8px;
+    padding:16px 24px;
+    width:80%;
+    max-width:700px;
+  }
   footer{position:fixed;bottom:0;width:100%;text-align:center;font-size:13px;padding:8px 0;border-top:1px solid rgba(255,255,255,0.03)}
   footer a{color:var(--fg);margin:0 8px;text-decoration:none}
 </style>
@@ -41,7 +91,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
   if(!user) return location.href='index.html'
 
   document.getElementById('uname2').textContent = user.username
-  document.getElementById('welcomeMsg').textContent = `Welcome Back, ${user.username}`
+  document.getElementById('welcomeMsg').textContent = "Welcome Back, " + user.username
 
   const sidebar = document.getElementById('sidebar')
   const overlay = document.getElementById('overlay')
@@ -51,6 +101,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
     sidebar.classList.toggle('show', show)
     overlay.classList.toggle('show', show)
   }
+
   menuBtn.addEventListener('click', ()=> toggleSidebar(!sidebar.classList.contains('show')))
   overlay.addEventListener('click', ()=> toggleSidebar(false))
   document.getElementById('logout').addEventListener('click', ()=>{
@@ -67,11 +118,17 @@ document.addEventListener('DOMContentLoaded', ()=>{
   </div>
 
   <div id="sidebar" class="sidebar">
-    <div>Account</div>
-    <div style="margin-top:10px">Logged in as <strong id="uname2"></strong></div>
-    <button onclick="location.href='livechat.html'">Live-Chat</button>
-    <button onclick="location.href='leaks.html'">Leaks</button>
-    <button onclick="location.href='shop.html'">Shop</button>
+    <div>
+      <div>Account</div>
+      <div style="margin-top:10px">Logged in as <strong id="uname2"></strong></div>
+
+      <div class="menu-links">
+        <a href="/livechat">Live Chat</a>
+        <a href="/leaks">leaks</a>
+        <a href="/shop">Shop</a>
+      </div>
+    </div>
+
     <button id="logout">Log Out</button>
   </div>
 
@@ -79,7 +136,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
 
   <div class="content">
     <div class="welcome-box">
-      <p id="welcomeMsg">Welcome Back, User</p>
+      <p id="welcomeMsg">Welcome Back</p>
     </div>
   </div>
 
