@@ -49,13 +49,13 @@ function getCookie(name){
   if(!c) return null
   try{ return JSON.parse(decodeURIComponent(c.split('=')[1])) }catch(e){ return null }
 }
-
 function clearCookie(name){ document.cookie = name + '=; path=/; max-age=0' }
 
 document.addEventListener('DOMContentLoaded', async ()=>{
   const user = getCookie('user')
-  if(!user) return location.href='index.html'
-  document.getElementById('uname2').textContent = user.username
+  if(!user || !user.username) return location.href='index.html'
+  const username = user.username
+  document.getElementById('uname2').textContent = username
 
   const sidebar = document.getElementById('sidebar')
   const overlay = document.getElementById('overlay')
@@ -86,13 +86,13 @@ document.addEventListener('DOMContentLoaded', async ()=>{
     data.forEach(t=>{
       const div = document.createElement('div')
       div.className='thread-box'
-      div.innerHTML=`<a href="/leaks?thread=${t.id}" style="color:var(--fg);text-decoration:none">
-        <strong>${t.title}</strong><br>
-        <em>${t.username} @ ${new Date(t.created_at).toLocaleString()}</em></a>
+      div.innerHTML=`<a href="/leaks.html?thread=${t.id}" style="color:var(--fg);text-decoration:none">
+        <strong>${t.title}</strong></a><br>
+        <em>${t.username} @ ${new Date(t.created_at).toLocaleString()}</em>
         <p>${t.content}</p>
         ${t.file?`<p>File: ${t.file}</p>`:''}`
 
-      if(user.username===t.username){
+      if(username===t.username){
         const editBtn = document.createElement('button')
         editBtn.textContent='Edit'
         editBtn.addEventListener('click', ()=> openEdit(div, t))
@@ -153,7 +153,7 @@ document.addEventListener('DOMContentLoaded', async ()=>{
     const file = document.getElementById('threadFile').files[0]?.name || ''
     if(!title||!content) return alert('Title and content required')
     await supabase.from('threads').insert([
-      { username: user.username, title, content, file, created_at: new Date().toISOString() }
+      { username, title, content, file, created_at: new Date().toISOString() }
     ])
     document.getElementById('threadTitle').value=''
     document.getElementById('threadContent').value=''
