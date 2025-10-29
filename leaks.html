@@ -9,7 +9,7 @@
 html,body{height:100%;margin:0;background:var(--bg);color:var(--fg);font-family:monospace}
 .top{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid rgba(255,255,255,0.03)}
 #homeLink{display:inline-block;text-decoration:none}
-#logo{height:40px;width:auto;display:block}
+#logo{height:37px;width:auto;display:block}
 .menu-btn{cursor:pointer;width:28px;height:20px;position:relative;border:none;background:transparent}
 .menu-btn span,.menu-btn::before,.menu-btn::after{content:'';display:block;height:2px;width:100%;background:var(--fg);position:absolute;left:0;transition:.2s;}
 .menu-btn span{top:9px;}
@@ -49,9 +49,10 @@ function getCookie(name){
   if(!c) return null
   try{ return JSON.parse(decodeURIComponent(c.split('=')[1])) }catch(e){ return null }
 }
+
 function clearCookie(name){ document.cookie = name + '=; path=/; max-age=0' }
 
-document.addEventListener('DOMContentLoaded', ()=>{
+document.addEventListener('DOMContentLoaded', async ()=>{
   const user = getCookie('user')
   if(!user) return location.href='index.html'
   document.getElementById('uname2').textContent = user.username
@@ -80,23 +81,22 @@ document.addEventListener('DOMContentLoaded', ()=>{
       .from('threads')
       .select('*')
       .order('created_at', { ascending: false })
-    if(error) console.error(error)
+    if(error) return console.error(error)
     threadsContainer.innerHTML = ''
     data.forEach(t=>{
       const div = document.createElement('div')
-      div.className = 'thread-box'
-      div.innerHTML = `<strong>${t.title}</strong><br>
-                       <em>${t.username} @ ${new Date(t.created_at).toLocaleString()}</em>
-                       <p>${t.content}</p>
-                       ${t.file?`<p>File: ${t.file}</p>`:''}`
+      div.className='thread-box'
+      div.innerHTML=`<strong>${t.title}</strong><br>
+                     <em>${t.username} @ ${new Date(t.created_at).toLocaleString()}</em>
+                     <p>${t.content}</p>
+                     ${t.file?`<p>File: ${t.file}</p>`:''}`
 
-      // If logged in user is Idawn and thread created by them, add Edit/Delete
-      if(user.username === 'Idawn' && t.username === 'Idawn'){
+      if(user.username===t.username){
         const editBtn = document.createElement('button')
-        editBtn.textContent = 'Edit'
+        editBtn.textContent='Edit'
         editBtn.addEventListener('click', ()=> openEdit(div, t))
         const deleteBtn = document.createElement('button')
-        deleteBtn.textContent = 'Delete'
+        deleteBtn.textContent='Delete'
         deleteBtn.addEventListener('click', ()=> openDelete(div, t.id))
         div.appendChild(editBtn)
         div.appendChild(deleteBtn)
@@ -123,7 +123,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
       })
       popup.querySelector('.no').addEventListener('click', ()=>{popup.style.display='none'})
     }
-    popup.style.display = 'flex'
+    popup.style.display='flex'
   }
 
   function openEdit(threadDiv, thread){
@@ -131,8 +131,8 @@ document.addEventListener('DOMContentLoaded', ()=>{
     if(!form){
       form = document.createElement('div')
       form.className='edit-form'
-      form.innerHTML = `<textarea rows="4">${thread.content}</textarea>
-                        <button>Save</button>`
+      form.innerHTML=`<textarea rows="4">${thread.content}</textarea>
+                      <button>Save</button>`
       threadDiv.appendChild(form)
       form.querySelector('button').addEventListener('click', async ()=>{
         const newContent = form.querySelector('textarea').value
@@ -140,7 +140,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
         loadThreads()
       })
     }
-    form.style.display = 'flex'
+    form.style.display='flex'
   }
 
   makeThreadBtn.addEventListener('click', ()=>{
