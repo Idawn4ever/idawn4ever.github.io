@@ -60,7 +60,6 @@ document.addEventListener('DOMContentLoaded', async ()=>{
   const sidebar = document.getElementById('sidebar')
   const overlay = document.getElementById('overlay')
   const menuBtn = document.getElementById('menuBtn')
-
   const toggleSidebar = show=>{
     sidebar.classList.toggle('show', show)
     overlay.classList.toggle('show', show)
@@ -77,19 +76,21 @@ document.addEventListener('DOMContentLoaded', async ()=>{
   const threadsContainer = document.getElementById('threadsContainer')
 
   async function loadThreads(){
-    const { data, error } = await supabase
-      .from('threads')
-      .select('*')
-      .order('created_at', { ascending: false })
+    const params = new URLSearchParams(window.location.search)
+    const threadId = params.get('thread')
+    let query = supabase.from('threads').select('*').order('created_at', { ascending: false })
+    if(threadId) query = query.eq('id', threadId)
+    const { data, error } = await query
     if(error) return console.error(error)
     threadsContainer.innerHTML = ''
     data.forEach(t=>{
       const div = document.createElement('div')
       div.className='thread-box'
-      div.innerHTML=`<strong>${t.title}</strong><br>
-                     <em>${t.username} @ ${new Date(t.created_at).toLocaleString()}</em>
-                     <p>${t.content}</p>
-                     ${t.file?`<p>File: ${t.file}</p>`:''}`
+      div.innerHTML=`<a href="/leaks?thread=${t.id}" style="color:var(--fg);text-decoration:none">
+        <strong>${t.title}</strong><br>
+        <em>${t.username} @ ${new Date(t.created_at).toLocaleString()}</em></a>
+        <p>${t.content}</p>
+        ${t.file?`<p>File: ${t.file}</p>`:''}`
 
       if(user.username===t.username){
         const editBtn = document.createElement('button')
@@ -101,7 +102,6 @@ document.addEventListener('DOMContentLoaded', async ()=>{
         div.appendChild(editBtn)
         div.appendChild(deleteBtn)
       }
-
       threadsContainer.appendChild(div)
     })
   }
