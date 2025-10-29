@@ -1,0 +1,207 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Leaks</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+:root{--bg:#000;--fg:lime;}
+html,body{height:100%;margin:0;background:var(--bg);color:var(--fg);font-family:monospace}
+.top{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid rgba(255,255,255,0.03)}
+#homeLink{display:inline-block;text-decoration:none}
+#logo{height:40px;width:auto;display:block}
+.menu-btn{cursor:pointer;width:28px;height:20px;position:relative;border:none;background:transparent}
+.menu-btn span,.menu-btn::before,.menu-btn::after{content:'';display:block;height:2px;width:100%;background:var(--fg);position:absolute;left:0;transition:.2s;}
+.menu-btn span{top:9px;}
+.menu-btn::before{top:0;}
+.menu-btn::after{bottom:0;}
+.sidebar{position:fixed;right:-260px;top:0;height:100%;width:260px;background:#050505;border-left:1px solid rgba(255,255,255,0.03);padding:16px;transition:right .3s ease;z-index:100;visibility:hidden;opacity:0;display:flex;flex-direction:column;justify-content:space-between;}
+.sidebar.show{right:0;visibility:visible;opacity:1}
+.sidebar-scroll{overflow-y:auto;flex-grow:1;margin-bottom:16px;}
+.menu-links{display:flex;flex-direction:column;gap:12px;margin-top:20px;}
+.menu-links a{border:1px solid var(--fg);border-radius:8px;padding:10px;text-align:center;text-decoration:none;color:var(--fg);transition:.2s;}
+.menu-links a:hover{background:var(--fg);color:#000;}
+.sidebar button{border:none;background:var(--fg);color:#000;cursor:pointer;padding:10px;border-radius:8px;width:100%;}
+.overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);z-index:99}
+.overlay.show{display:block}
+.content{padding:24px;text-align:center; margin-bottom:40px;} 
+.welcome-box{border:1px solid var(--fg);padding:24px;margin:0 16px 16px 16px;border-radius:4px;min-height:calc(100vh - 64px - 32px - 24px);display:flex;flex-direction:column;}
+.thread-form, .edit-form{display:none;flex-direction:column;gap:8px;margin-bottom:16px;text-align:left;}
+.thread-form input, .thread-form textarea, .edit-form textarea{width:100%;padding:8px;border-radius:4px;border:1px solid var(--fg);background:#000;color:var(--fg);font-family:monospace;}
+.thread-form button, .edit-form button{align-self:flex-end;padding:8px 12px;border:none;background:var(--fg);color:#000;border-radius:4px;cursor:pointer;margin-top:4px;}
+.threads-container{display:flex;flex-direction:column;gap:12px;margin-top:16px;}
+.thread-box{border:1px solid var(--fg);padding:12px;border-radius:4px;text-align:left;position:relative;}
+.thread-box button{margin-left:8px;padding:4px 8px;font-size:12px;}
+.delete-popup{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:#111;border:1px solid var(--fg);padding:16px;border-radius:6px;z-index:101;display:none;flex-direction:column;gap:8px;}
+.delete-popup button{width:50px;}
+footer{position:fixed;bottom:0;width:100%;text-align:center;font-size:13px;padding:8px 0;border-top:1px solid rgba(255,255,255,0.03)}
+footer a{color:var(--fg);margin:0 8px;text-decoration:none}
+</style>
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+
+const supabaseUrl = 'https://thdzrkzdkdihjximoalb.supabase.co'
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRoZHpya3pka2RpaGp4aW1vYWxiIiwicm9lIjoiYW5vbiIsImlhdCI6MTc2MDI0OTM3MiwiZXhwIjoyMDc1ODI1MzcyfQ.uHpGricbNHVWsndClTd8K7LVRTCzWLF0ziwuGKvOSTw'
+const supabase = createClient(supabaseUrl, supabaseKey)
+
+function getCookie(name){
+  const c = document.cookie.split('; ').find(r=>r.startsWith(name+'='))
+  if(!c) return null
+  try{ return JSON.parse(decodeURIComponent(c.split('=')[1])) }catch(e){ return null }
+}
+function clearCookie(name){ document.cookie = name + '=; path=/; max-age=0' }
+
+document.addEventListener('DOMContentLoaded', ()=>{
+  const user = getCookie('user')
+  if(!user) return location.href='index.html'
+  document.getElementById('uname2').textContent = user.username
+
+  const sidebar = document.getElementById('sidebar')
+  const overlay = document.getElementById('overlay')
+  const menuBtn = document.getElementById('menuBtn')
+
+  const toggleSidebar = show=>{
+    sidebar.classList.toggle('show', show)
+    overlay.classList.toggle('show', show)
+  }
+  menuBtn.addEventListener('click', ()=> toggleSidebar(!sidebar.classList.contains('show')))
+  overlay.addEventListener('click', ()=> toggleSidebar(false))
+  document.getElementById('logout').addEventListener('click', ()=>{
+    clearCookie('user')
+    location.href='index.html'
+  })
+
+  const makeThreadBtn = document.getElementById('makeThread')
+  const threadForm = document.getElementById('threadForm')
+  const threadsContainer = document.getElementById('threadsContainer')
+
+  async function loadThreads(){
+    const { data, error } = await supabase
+      .from('threads')
+      .select('*')
+      .order('created_at', { ascending: false })
+    if(error) console.error(error)
+    threadsContainer.innerHTML = ''
+    data.forEach(t=>{
+      const div = document.createElement('div')
+      div.className = 'thread-box'
+      div.innerHTML = `<strong>${t.title}</strong><br>
+                       <em>${t.username} @ ${new Date(t.created_at).toLocaleString()}</em>
+                       <p>${t.content}</p>
+                       ${t.file?`<p>File: ${t.file}</p>`:''}`
+
+      // If logged in user is Idawn and thread created by them, add Edit/Delete
+      if(user.username === 'Idawn' && t.username === 'Idawn'){
+        const editBtn = document.createElement('button')
+        editBtn.textContent = 'Edit'
+        editBtn.addEventListener('click', ()=> openEdit(div, t))
+        const deleteBtn = document.createElement('button')
+        deleteBtn.textContent = 'Delete'
+        deleteBtn.addEventListener('click', ()=> openDelete(div, t.id))
+        div.appendChild(editBtn)
+        div.appendChild(deleteBtn)
+      }
+
+      threadsContainer.appendChild(div)
+    })
+  }
+
+  function openDelete(threadDiv, threadId){
+    let popup = threadDiv.querySelector('.delete-popup')
+    if(!popup){
+      popup = document.createElement('div')
+      popup.className='delete-popup'
+      popup.innerHTML=`<span>Are you sure?</span>
+                       <div>
+                         <button class="yes">Yes</button>
+                         <button class="no">No</button>
+                       </div>`
+      threadDiv.appendChild(popup)
+      popup.querySelector('.yes').addEventListener('click', async ()=>{
+        await supabase.from('threads').delete().eq('id', threadId)
+        loadThreads()
+      })
+      popup.querySelector('.no').addEventListener('click', ()=>{popup.style.display='none'})
+    }
+    popup.style.display = 'flex'
+  }
+
+  function openEdit(threadDiv, thread){
+    let form = threadDiv.querySelector('.edit-form')
+    if(!form){
+      form = document.createElement('div')
+      form.className='edit-form'
+      form.innerHTML = `<textarea rows="4">${thread.content}</textarea>
+                        <button>Save</button>`
+      threadDiv.appendChild(form)
+      form.querySelector('button').addEventListener('click', async ()=>{
+        const newContent = form.querySelector('textarea').value
+        await supabase.from('threads').update({content:newContent}).eq('id', thread.id)
+        loadThreads()
+      })
+    }
+    form.style.display = 'flex'
+  }
+
+  makeThreadBtn.addEventListener('click', ()=>{
+    threadForm.style.display = threadForm.style.display==='flex'?'none':'flex'
+  })
+
+  document.getElementById('submitThread').addEventListener('click', async ()=>{
+    const title = document.getElementById('threadTitle').value.trim()
+    const content = document.getElementById('threadContent').value.trim()
+    const file = document.getElementById('threadFile').files[0]?.name || ''
+    if(!title||!content) return alert('Title and content required')
+    await supabase.from('threads').insert([
+      { username: user.username, title, content, file, created_at: new Date().toISOString() }
+    ])
+    document.getElementById('threadTitle').value=''
+    document.getElementById('threadContent').value=''
+    document.getElementById('threadFile').value=''
+    threadForm.style.display='none'
+    loadThreads()
+  })
+
+  loadThreads()
+})
+</script>
+</head>
+<body>
+<div class="top">
+  <a href="/home" id="homeLink" title="Home"><img id="logo" src="assets/logo.png" alt="Idawn Logo"></a>
+  <button id="menuBtn" class="menu-btn"><span></span></button>
+</div>
+
+<div id="sidebar" class="sidebar">
+  <div class="sidebar-scroll">
+    <div>Account</div>
+    <div style="margin-top:10px">Logged in as <strong id="uname2"></strong></div>
+    <div class="menu-links">
+      <a href="/livechat">Live Chat</a>
+      <a href="/leaks">Leaks</a>
+      <a href="/shop">Shop</a>
+    </div>
+  </div>
+  <button id="logout" style="margin-bottom:16px;">Log Out</button>
+</div>
+
+<div id="overlay" class="overlay"></div>
+
+<div class="content">
+  <div class="welcome-box">
+    <button id="makeThread">Make A New Thread</button>
+    <div id="threadForm" class="thread-form">
+      <input type="text" id="threadTitle" placeholder="Title">
+      <textarea id="threadContent" rows="4" placeholder="Content"></textarea>
+      <input type="file" id="threadFile">
+      <button id="submitThread">Done</button>
+    </div>
+    <div class="threads-container" id="threadsContainer"></div>
+  </div>
+</div>
+
+<footer>
+  <a href="/contact">Contact</a> | Idawn™
+</footer>
+</body>
+</html>
