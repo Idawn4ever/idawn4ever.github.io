@@ -1,140 +1,221 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-<meta charset="utf-8">
-<title>Admin Panel</title>
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<style>
-:root{--bg:#000;--fg:lime;}
-html,body{height:100%;margin:0;background:var(--bg);color:var(--fg);font-family:monospace}
-.top{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid rgba(255,255,255,0.05)}
-#logo{height:40px;width:auto}
-.menu-btn{cursor:pointer;width:28px;height:20px;position:relative;border:none;background:transparent}
-.menu-btn span,.menu-btn::before,.menu-btn::after{content:'';display:block;height:2px;width:100%;background:var(--fg);position:absolute;left:0;transition:.25s}
-.menu-btn span{top:9px;}
-.menu-btn::before{top:0;}
-.menu-btn::after{bottom:0;}
-.sidebar{position:fixed;right:-260px;top:0;height:100%;width:260px;background:#050505;border-left:1px solid rgba(255,255,255,0.05);padding:16px;transition:right .25s ease;z-index:100;overflow-y:auto;visibility:hidden}
-.sidebar.show{right:0;visibility:visible}
-.overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);z-index:99}
-.overlay.show{display:block}
-.sidebar button{display:block;margin-top:16px;padding:8px;border:none;background:var(--fg);color:#000;cursor:pointer;width:100%;border-radius:5px}
-.content{padding:24px}
-.box{border:1px solid var(--fg);border-radius:4px;padding:16px;margin:20px auto;max-width:95%;min-height:60vh;display:flex;flex-direction:column;gap:16px;box-sizing:border-box}
-button{background:var(--fg);color:#000;border:none;padding:8px 14px;cursor:pointer;border-radius:5px}
-#dbTable{display:none;overflow:auto;white-space:nowrap;border-collapse:collapse;width:100%}
-#dbTable th,#dbTable td{border:1px solid var(--fg);padding:8px 10px;text-align:left}
-.dropdown{position:relative;display:inline-block}
-.dropdown-content{display:none;position:absolute;background:#111;min-width:120px;box-shadow:0 2px 6px rgba(0,0,0,.4);z-index:200;border-radius:6px}
-.dropdown-content button{width:100%;text-align:left;border:none;background:none;color:var(--fg);padding:8px;cursor:pointer}
-.dropdown-content button:hover{background:#222}
-.dropdown.show .dropdown-content{display:block}
-footer{position:fixed;bottom:0;width:100%;text-align:center;font-size:13px;padding:8px 0;border-top:1px solid rgba(255,255,255,0.03)}
-footer a{color:var(--fg);margin:0 8px;text-decoration:none}
-</style>
-
-<script type="module">
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
-const supabase = createClient("https://thdzrkzdkdihjximoalb.supabase.co","eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRoZHpya3pka2RpaGp4aW1vYWxiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAyNDkzNzIsImV4cCI6MjA3NTgyNTM3Mn0.uHpGricbNHVWsndClTd8K7LVRTCzWLF0ziwuGKvOSTw")
-
-function getCookie(name){
-  const c=document.cookie.split('; ').find(r=>r.startsWith(name+'='))
-  if(!c)return null
-  try{return JSON.parse(decodeURIComponent(c.split('=')[1]))}catch(e){return null}
-}
-function clearCookie(name){document.cookie=name+'=; path=/; max-age=0'}
-
-document.addEventListener('DOMContentLoaded',()=>{
-  const admin=getCookie('admin')
-  if(!admin)return location.href='admin.html'
-  document.getElementById('adminName').textContent=admin.username
-
-  const sidebar=document.getElementById('sidebar')
-  const overlay=document.getElementById('overlay')
-  const menuBtn=document.getElementById('menuBtn')
-  const toggleSidebar=show=>{
-    sidebar.classList.toggle('show',show)
-    overlay.classList.toggle('show',show)
-  }
-  menuBtn.addEventListener('click',()=>toggleSidebar(!sidebar.classList.contains('show')))
-  overlay.addEventListener('click',()=>toggleSidebar(false))
-  document.getElementById('logout').addEventListener('click',()=>{
-    clearCookie('admin')
-    location.href='admin.html'
-  })
-
-  document.getElementById('showDB').addEventListener('click',async()=>{
-    const table=document.getElementById('dbTable')
-    if(table.style.display==='table'){table.style.display='none';return}
-    const {data,error}=await supabase.from('users').select('*')
-    if(error)return alert('Error loading users')
-    const tbody=document.querySelector('#dbTable tbody')
-    tbody.innerHTML=''
-    data.forEach(u=>{
-      const tr=document.createElement('tr')
-      tr.innerHTML=`<td>${u.username}</td><td>${u.password}</td><td>${u.created_at||''}</td>
-      <td>
-        <div class="dropdown">
-          <button onclick="toggleMenu(this)">⋮</button>
-          <div class="dropdown-content">
-            <button onclick="deleteUser('${u.id}')">Delete User</button>
-            <button onclick="editUser('${u.id}','username','${u.username}')">Edit User</button>
-            <button onclick="editUser('${u.id}','password','${u.password}')">Edit Password</button>
-          </div>
-        </div>
-      </td>`
-      tbody.appendChild(tr)
-    })
-    table.style.display='table'
-  })
-})
-
-window.toggleMenu=btn=>{
-  const drop=btn.parentElement
-  drop.classList.toggle('show')
-  setTimeout(()=>drop.classList.remove('show'),4000)
-}
-
-window.deleteUser=async(id)=>{
-  if(!confirm('Delete this user?'))return
-  const {error}=await supabase.from('users').delete().eq('id',id)
-  if(error)return alert('Failed to delete')
-  alert('Deleted');location.reload()
-}
-
-window.editUser=async(id,field,value)=>{
-  const newVal=prompt(`Edit ${field}`,value)
-  if(newVal===null)return
-  const {error}=await supabase.from('users').update({[field]:newVal}).eq('id',id)
-  if(error)return alert('Failed to update')
-  alert('Updated');location.reload()
-}
-</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #0d0d0d;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .border-box {
+      border: 2px solid #fff;
+      border-radius: 10px;
+      width: 90%;
+      height: 90%;
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+    .logo {
+      position: absolute;
+      top: 15px;
+      right: 60px;
+      width: 40px;
+    }
+    .menu-btn {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: none;
+      border: none;
+      color: white;
+      font-size: 24px;
+      cursor: pointer;
+    }
+    .sidebar {
+      position: fixed;
+      top: 0;
+      right: -250px;
+      width: 250px;
+      height: 100%;
+      background-color: #1a1a1a;
+      padding: 20px;
+      transition: right 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .sidebar.active {
+      right: 0;
+    }
+    .logout-btn {
+      background: red;
+      border: none;
+      color: white;
+      padding: 10px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .btn {
+      margin-top: 50px;
+      padding: 10px 20px;
+      background-color: #222;
+      border: 1px solid #555;
+      border-radius: 5px;
+      color: white;
+      cursor: pointer;
+    }
+    #database {
+      margin-top: 20px;
+      display: none;
+      overflow-x: auto;
+      width: 100%;
+      height: 75%;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      border: 1px solid #444;
+      padding: 10px;
+      text-align: center;
+    }
+    .options {
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .options-menu {
+      display: none;
+      position: absolute;
+      background-color: #222;
+      border: 1px solid #555;
+      border-radius: 5px;
+      padding: 5px;
+      z-index: 10;
+    }
+    .options-menu button {
+      display: block;
+      width: 100%;
+      background: none;
+      border: none;
+      color: white;
+      padding: 5px;
+      text-align: left;
+      cursor: pointer;
+    }
+    .options-menu button:hover {
+      background-color: #333;
+    }
+  </style>
 </head>
 <body>
-<div class="top">
-  <img id="logo" src="assets/logo.png" alt="logo">
-  <button id="menuBtn" class="menu-btn"><span></span></button>
-</div>
-
-<div id="sidebar" class="sidebar">
-  <div>Logged in as <strong id="adminName"></strong></div>
-  <button id="logout">Log Out</button>
-</div>
-<div id="overlay" class="overlay"></div>
-
-<div class="content">
-  <div class="box">
-    <button id="showDB">Database</button>
-    <table id="dbTable">
-      <thead><tr><th>Username</th><th>Password</th><th>Date Created</th><th>Actions</th></tr></thead>
-      <tbody></tbody>
-    </table>
+  <div class="border-box">
+    <img src="/assets/logo.png" class="logo">
+    <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+    <button class="btn" onclick="toggleDatabase()">Database</button>
+    <div id="database">
+      <table id="userTable">
+        <thead>
+          <tr>
+            <th>Username</th>
+            <th>Password</th>
+            <th>Date Created</th>
+            <th>Options</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
   </div>
-</div>
 
-<footer>
-  <a href="#">Idawn™</a>
-</footer>
+  <div class="sidebar" id="sidebar">
+    <div>
+      <h3>Logged in as:</h3>
+      <p id="loggedUser"></p>
+    </div>
+    <button class="logout-btn" onclick="logout()">Logout</button>
+  </div>
+
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+    const supabaseUrl = 'YOUR_SUPABASE_URL';
+    const supabaseKey = 'YOUR_SUPABASE_KEY';
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    const sidebar = document.getElementById("sidebar");
+    function toggleSidebar() {
+      sidebar.classList.toggle("active");
+    }
+
+    function toggleDatabase() {
+      const db = document.getElementById("database");
+      db.style.display = db.style.display === "none" ? "block" : "none";
+    }
+
+    function logout() {
+      document.cookie = "admin_logged_in=; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+      window.location.href = "admin.html";
+    }
+
+    async function loadUsers() {
+      const { data } = await supabase.from("users").select("*");
+      const tableBody = document.querySelector("#userTable tbody");
+      tableBody.innerHTML = "";
+      data.forEach(u => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${u.username}</td>
+          <td>${u.password}</td>
+          <td>${new Date(u.created_at).toLocaleString()}</td>
+          <td>
+            <span class="options" onclick="toggleOptions(this)">⋮</span>
+            <div class="options-menu">
+              <button onclick="editUser('${u.username}')">Edit User</button>
+              <button onclick="editPassword('${u.username}')">Edit Password</button>
+              <button onclick="deleteUser('${u.username}')">Delete User</button>
+            </div>
+          </td>`;
+        tableBody.appendChild(tr);
+      });
+    }
+
+    window.toggleOptions = function(el) {
+      const menu = el.nextElementSibling;
+      menu.style.display = menu.style.display === "block" ? "none" : "block";
+    };
+
+    window.deleteUser = async function(username) {
+      await supabase.from("users").delete().eq("username", username);
+      loadUsers();
+    };
+
+    window.editUser = async function(username) {
+      const newName = prompt("Enter new username:", username);
+      if (newName)
+        await supabase.from("users").update({ username: newName }).eq("username", username);
+      loadUsers();
+    };
+
+    window.editPassword = async function(username) {
+      const newPass = prompt("Enter new password:");
+      if (newPass)
+        await supabase.from("users").update({ password: newPass }).eq("username", username);
+      loadUsers();
+    };
+
+    const cookie = document.cookie.split("; ").find(r => r.startsWith("admin_logged_in="));
+    if (!cookie) window.location.href = "admin.html";
+    else loadUsers();
+    document.getElementById("loggedUser").innerText = cookie.split("=")[1];
+  </script>
 </body>
 </html>
