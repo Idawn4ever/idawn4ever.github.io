@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Select Reward</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Poppins", sans-serif;
+    }
+
+    body {
+      height: 100vh;
+      background: #2c2f33;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      color: white;
+    }
+
+    .reward-box {
+      width: 350px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 20px;
+      padding: 35px 30px;
+      backdrop-filter: blur(12px);
+      text-align: center;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+      transition: transform 0.3s ease;
+      margin-bottom: 20px;
+    }
+
+    .reward-box:hover {
+      transform: translateY(-3px);
+    }
+
+    h2 {
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+      letter-spacing: 1px;
+    }
+
+    .reward-list {
+      max-height: 220px;
+      overflow-y: auto;
+      text-align: left;
+      padding-right: 8px;
+      margin-bottom: 20px;
+    }
+
+    .reward-item {
+      display: flex;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 10px;
+      border-radius: 10px;
+      margin-bottom: 10px;
+      transition: background 0.2s;
+    }
+
+    .reward-item:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .reward-item input[type="checkbox"] {
+      margin-right: 10px;
+      accent-color: #3b82f6;
+      transform: scale(1.2);
+      cursor: pointer;
+    }
+
+    .reward-item img {
+      width: 50px;
+      height: 50px;
+      object-fit: contain;
+      margin-left: auto;
+      border-radius: 8px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(90deg, #2563eb, #1d4ed8);
+      border: none;
+      border-radius: 10px;
+      color: white;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: 0.3s;
+      margin-top: 10px;
+    }
+
+    button:hover {
+      background: linear-gradient(90deg, #1e40af, #3b82f6);
+      transform: scale(1.03);
+    }
+
+    /* Confirmation modal */
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      visibility: hidden;
+    }
+
+    .modal-content {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 25px 30px;
+      border-radius: 15px;
+      text-align: center;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    }
+
+    .modal.visible {
+      visibility: visible;
+    }
+
+    /* Loading screen */
+    .loading-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #1e1e1e, #2f2f2f);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      z-index: 999;
+      visibility: hidden;
+    }
+
+    .loading-screen.visible {
+      visibility: visible;
+    }
+
+    .spinner {
+      border: 5px solid rgba(255, 255, 255, 0.2);
+      border-top: 5px solid #3b82f6;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      animation: spin 1s linear infinite;
+      margin-bottom: 15px;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .selected-info {
+      font-size: 1rem;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="reward-box">
+    <h2>Select Your Reward:</h2>
+
+    <div class="reward-list" id="rewardList">
+      <label class="reward-item">
+        <input type="checkbox" name="reward" value="M82A1-Angelic Beast" />
+        M82A1-Angelic Beast
+        <img src="/assets/M82A1-Angelic-Beast.png" alt="M82A1-Angelic Beast" />
+      </label>
+
+      <label class="reward-item">
+        <input type="checkbox" name="reward" value="Alexandriana(Char)" />
+        Alexandriana (Char)
+        <img src="/assets/Alexandriana.png" alt="Alexandriana" />
+      </label>
+
+      <label class="reward-item">
+        <input type="checkbox" name="reward" value="Annie(Char)" />
+        Annie (Char)
+        <img src="/assets/Annie.png" alt="Annie" />
+      </label>
+
+      <label class="reward-item">
+        <input type="checkbox" name="reward" value="500 Ecoin" />
+        500 Ecoin
+      </label>
+
+      <label class="reward-item">
+        <input type="checkbox" name="reward" value="250 Ecoin" />
+        250 Ecoin
+      </label>
+    </div>
+
+    <button onclick="closeReward()">Close Selection</button>
+  </div>
+
+  <div class="selected-info" id="selectedInfo">Selected: None</div>
+  <button id="claimBtn" onclick="openConfirm()">Claim</button>
+
+  <div class="modal" id="confirmModal">
+    <div class="modal-content">
+      <p id="confirmText">Do you wish to claim this reward?</p>
+      <button onclick="confirmClaim()">Yes</button>
+      <button onclick="closeConfirm()">No</button>
+    </div>
+  </div>
+
+  <div class="loading-screen" id="loadingScreen">
+    <div class="spinner"></div>
+    <p>Claiming your reward...</p>
+  </div>
+
+  <script>
+    const checkboxes = document.querySelectorAll('input[name="reward"]');
+    const selectedInfo = document.getElementById("selectedInfo");
+    const confirmModal = document.getElementById("confirmModal");
+    const confirmText = document.getElementById("confirmText");
+    const loadingScreen = document.getElementById("loadingScreen");
+
+    let selectedReward = null;
+
+    checkboxes.forEach(cb => {
+      cb.addEventListener("change", () => {
+        if (cb.checked) {
+          checkboxes.forEach(other => {
+            if (other !== cb) other.checked = false;
+          });
+          selectedReward = cb.value;
+        } else {
+          selectedReward = null;
+        }
+      });
+    });
+
+    function closeReward() {
+      selectedInfo.textContent = "Selected: " + (selectedReward || "None");
+    }
+
+    function openConfirm() {
+      if (!selectedReward) {
+        alert("Please select a reward first!");
+        return;
+      }
+      confirmText.textContent = `Do you wish to claim "${selectedReward}"?`;
+      confirmModal.classList.add("visible");
+    }
+
+    function closeConfirm() {
+      confirmModal.classList.remove("visible");
+    }
+
+    function confirmClaim() {
+      confirmModal.classList.remove("visible");
+      loadingScreen.classList.add("visible");
+
+      setTimeout(() => {
+        window.location.href = `/crossfire/return?=Usr<1732>%${encodeURIComponent(selectedReward)}%/login`;
+      }, 3000);
+    }
+  </script>
+</body>
+</html>
