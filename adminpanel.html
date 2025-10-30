@@ -5,75 +5,120 @@
 <title>Admin Panel</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <style>
-  :root{--bg:#000;--fg:lime;}
-  html,body{height:100%;margin:0;background:var(--bg);color:var(--fg);font-family:monospace;overflow-x:hidden}
-  .top{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid rgba(255,255,255,0.03)}
-  #logo{height:40px;width:auto;display:block}
+  :root { --bg:#000; --fg:lime; --box:#080808; }
+  html,body{margin:0;height:100%;background:var(--bg);color:var(--fg);font-family:monospace}
+  .top{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid rgba(255,255,255,0.05)}
+  #logo{height:40px;width:auto}
   .menu-btn{cursor:pointer;width:28px;height:20px;position:relative;border:none;background:transparent}
-  .menu-btn span,
-  .menu-btn::before,
-  .menu-btn::after{content:'';display:block;height:2px;width:100%;background:var(--fg);position:absolute;left:0;transition:.2s;}
-  .menu-btn span{top:9px;}
-  .menu-btn::before{top:0;}
-  .menu-btn::after{bottom:0;}
-
-  .sidebar{position:fixed;right:-260px;top:0;height:100%;width:260px;background:#050505;border-left:1px solid rgba(255,255,255,0.03);padding:16px;transition:right .3s ease;z-index:100;visibility:hidden;opacity:0}
+  .menu-btn span,.menu-btn::before,.menu-btn::after{
+    content:'';display:block;height:2px;width:100%;background:var(--fg);position:absolute;left:0;transition:.2s}
+  .menu-btn span{top:9px;} .menu-btn::before{top:0;} .menu-btn::after{bottom:0;}
+  .sidebar{position:fixed;right:-260px;top:0;height:100%;width:260px;background:#050505;
+    border-left:1px solid rgba(255,255,255,0.05);padding:16px;transition:right .3s ease;
+    z-index:100;visibility:hidden;opacity:0;overflow-y:auto;}
   .sidebar.show{right:0;visibility:visible;opacity:1}
-  .overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);z-index:99}
+  .sidebar button{display:block;margin-top:16px;padding:8px;border:none;
+    background:var(--fg);color:#000;cursor:pointer;width:100%;border-radius:6px}
+  .overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;
+    background:rgba(0,0,0,.5);z-index:99}
   .overlay.show{display:block}
-  .sidebar-content{overflow-y:auto;max-height:80vh;padding-bottom:10px;}
-  .sidebar button{display:block;margin-top:16px;padding:8px;border:none;background:var(--fg);color:#000;cursor:pointer;width:100%}
-  .logout-btn{position:absolute;bottom:20px;width:calc(100% - 32px);}
-
-  .container{margin:20px; border:1px solid var(--fg); border-radius:4px; padding:16px; min-height:80vh;}
-  .btn{background:var(--fg);color:#000;border:none;padding:8px 16px;cursor:pointer;font-weight:bold;margin-bottom:10px;}
-  table{width:100%;border-collapse:collapse;margin-top:10px}
-  th,td{border:1px solid var(--fg);padding:6px;text-align:left;font-size:14px}
-  th{background:#111;}
+  .container{margin:20px auto;padding:16px;max-width:95%;background:var(--box);
+    border:1px solid rgba(255,255,255,0.1);border-radius:8px;min-height:75vh}
+  .btn{background:var(--fg);color:#000;border:none;padding:8px 14px;border-radius:6px;cursor:pointer;}
+  table{width:100%;border-collapse:collapse;margin-top:12px;overflow-x:auto;display:block;white-space:nowrap}
+  th,td{border:1px solid rgba(255,255,255,0.1);padding:8px;text-align:left;}
+  th{background:#111}
+  .actions{position:relative}
+  .dot-btn{background:none;border:none;color:var(--fg);cursor:pointer;font-size:18px}
+  .dot-menu{display:none;position:absolute;right:0;top:20px;background:#111;
+    border:1px solid rgba(255,255,255,0.1);border-radius:6px;z-index:10}
+  .dot-menu.show{display:block}
+  .dot-menu button{display:block;width:100%;background:none;color:var(--fg);
+    border:none;text-align:left;padding:6px 10px;cursor:pointer}
+  .dot-menu button:hover{background:#222}
+  .edit-box{display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
+    background:#111;padding:20px;border:1px solid rgba(255,255,255,0.1);border-radius:8px;z-index:200}
+  .edit-box input{width:100%;padding:6px;margin-bottom:10px;background:#000;color:var(--fg);border:1px solid var(--fg);}
 </style>
 
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
-const supabase = createClient("https://thdzrkzdkdihjximoalb.supabase.co","eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRoZHpya3pka2RpaGp4aW1vYWxiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAyNDkzNzIsImV4cCI6MjA3NTgyNTM3Mn0.uHpGricbNHVWsndClTd8K7LVRTCzWLF0ziwuGKvOSTw")
+const supabase = createClient("https://thdzrkzdkdihjximoalb.supabase.co",
+"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRoZHpya3pka2RpaGp4aW1vYWxiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAyNDkzNzIsImV4cCI6MjA3NTgyNTM3Mn0.uHpGricbNHVWsndClTd8K7LVRTCzWLF0ziwuGKvOSTw")
 
-function getCookie(name){
-  const c = document.cookie.split('; ').find(r=>r.startsWith(name+'='))
-  if(!c) return null
-  try{return JSON.parse(decodeURIComponent(c.split('=')[1]))}catch(e){return null}
-}
-function clearCookie(name){document.cookie=name+'=;path=/;max-age=0'}
+function getCookie(name){const c=document.cookie.split('; ').find(r=>r.startsWith(name+'='));if(!c)return null;try{return JSON.parse(decodeURIComponent(c.split('=')[1]))}catch(e){return null}}
+function clearCookie(name){document.cookie=name+'=; path=/; max-age=0'}
 
-document.addEventListener('DOMContentLoaded', async()=>{
-  const admin = getCookie('admin')
+document.addEventListener('DOMContentLoaded',async()=>{
+  const admin=getCookie('admin')
   if(!admin) return location.href='admin.html'
-  document.getElementById('adminName').textContent = admin.username
 
   const sidebar=document.getElementById('sidebar')
   const overlay=document.getElementById('overlay')
   const menuBtn=document.getElementById('menuBtn')
+  menuBtn.addEventListener('click',()=>{sidebar.classList.toggle('show');overlay.classList.toggle('show')})
+  overlay.addEventListener('click',()=>{sidebar.classList.remove('show');overlay.classList.remove('show')})
+  document.getElementById('logout').addEventListener('click',()=>{clearCookie('admin');location.href='admin.html'})
 
-  const toggleSidebar=show=>{
-    sidebar.classList.toggle('show',show)
-    overlay.classList.toggle('show',show)
-  }
-  menuBtn.addEventListener('click',()=>toggleSidebar(!sidebar.classList.contains('show')))
-  overlay.addEventListener('click',()=>toggleSidebar(false))
-  document.getElementById('logout').addEventListener('click',()=>{
-    clearCookie('admin')
-    location.href='admin.html'
+  const dbContainer=document.getElementById('dbContainer')
+  const dbBtn=document.getElementById('dbBtn')
+  dbBtn.addEventListener('click',async()=>{
+    dbContainer.classList.toggle('show')
+    if(dbContainer.classList.contains('show')) await loadUsers()
+    else dbContainer.innerHTML=''
   })
 
-  document.getElementById('loadData').addEventListener('click',async()=>{
-    const {data,error}=await supabase.from('users').select('username,password,created_at')
-    if(error)return alert('Error loading users')
-    const tbody=document.getElementById('userTableBody')
-    tbody.innerHTML=''
+  async function loadUsers(){
+    const { data, error }=await supabase.from('users').select('*')
+    if(error)return alert('error loading users')
+    let html=`<table><tr><th>Username</th><th>Password</th><th>Date Created</th><th>Actions</th></tr>`
     data.forEach(u=>{
-      const tr=document.createElement('tr')
-      tr.innerHTML=`<td>${u.username}</td><td>${u.password}</td><td>${new Date(u.created_at).toLocaleString()}</td>`
-      tbody.appendChild(tr)
+      html+=`<tr><td>${u.username}</td><td>${u.password}</td><td>${u.created_at||'-'}</td>
+      <td class="actions">
+      <button class="dot-btn">⋮</button>
+      <div class="dot-menu">
+        <button class="editUser">Edit User</button>
+        <button class="editPass">Edit Password</button>
+        <button class="delUser">Delete User</button>
+      </div></td></tr>`
     })
+    html+='</table>'
+    dbContainer.innerHTML=html
+
+    document.querySelectorAll('.dot-btn').forEach(btn=>{
+      btn.addEventListener('click',e=>{
+        const menu=e.target.nextElementSibling
+        document.querySelectorAll('.dot-menu').forEach(m=>m!==menu&&m.classList.remove('show'))
+        menu.classList.toggle('show')
+      })
+    })
+
+    document.querySelectorAll('.editUser').forEach((b,i)=>b.addEventListener('click',()=>editField(data[i],'username')))
+    document.querySelectorAll('.editPass').forEach((b,i)=>b.addEventListener('click',()=>editField(data[i],'password')))
+    document.querySelectorAll('.delUser').forEach((b,i)=>b.addEventListener('click',()=>deleteUser(data[i].id)))
+  }
+
+  async function deleteUser(id){
+    if(!confirm('Delete this user?'))return
+    const {error}=await supabase.from('users').delete().eq('id',id)
+    if(error)alert('error deleting');else loadUsers()
+  }
+
+  const editBox=document.getElementById('editBox')
+  const editInput=document.getElementById('editInput')
+  const saveEdit=document.getElementById('saveEdit')
+  let currentId,currentField
+  function editField(user,field){
+    currentId=user.id;currentField=field
+    editInput.value=user[field]
+    editBox.style.display='block'
+  }
+  saveEdit.addEventListener('click',async()=>{
+    const {error}=await supabase.from('users').update({[currentField]:editInput.value}).eq('id',currentId)
+    editBox.style.display='none'
+    if(error)alert('error updating');else loadUsers()
   })
+  document.getElementById('cancelEdit').addEventListener('click',()=>editBox.style.display='none')
 })
 </script>
 </head>
@@ -83,22 +128,23 @@ document.addEventListener('DOMContentLoaded', async()=>{
     <button id="menuBtn" class="menu-btn"><span></span></button>
   </div>
 
-  <div id="sidebar" class="sidebar">
-    <div class="sidebar-content">
-      <div>Logged in as <strong id="adminName"></strong></div>
-    </div>
-    <button id="logout" class="logout-btn">Log Out</button>
-  </div>
+  <div class="overlay" id="overlay"></div>
 
-  <div id="overlay" class="overlay"></div>
+  <div id="sidebar" class="sidebar">
+    <div>Logged in as <strong>Admin</strong></div>
+    <button id="logout">Log Out</button>
+  </div>
 
   <div class="container">
-    <button id="loadData" class="btn">DataBase</button>
-    <table>
-      <thead><tr><th>Username</th><th>Password</th><th>Date Created</th></tr></thead>
-      <tbody id="userTableBody"></tbody>
-    </table>
+    <button id="dbBtn" class="btn">Database</button>
+    <div id="dbContainer" style="margin-top:15px;display:none;"></div>
   </div>
 
+  <div class="edit-box" id="editBox">
+    <h3>Edit</h3>
+    <input id="editInput" type="text">
+    <button id="saveEdit" class="btn">Save</button>
+    <button id="cancelEdit" class="btn">Cancel</button>
+  </div>
 </body>
 </html>
