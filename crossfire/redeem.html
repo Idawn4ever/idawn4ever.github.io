@@ -18,7 +18,6 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      flex-direction: column;
       color: white;
     }
 
@@ -31,7 +30,6 @@
       text-align: center;
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
       transition: transform 0.3s ease;
-      margin-bottom: 20px;
     }
 
     .reward-box:hover {
@@ -42,6 +40,24 @@
       font-size: 1.5rem;
       margin-bottom: 20px;
       letter-spacing: 1px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(90deg, #2563eb, #1d4ed8);
+      border: none;
+      border-radius: 10px;
+      color: white;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: 0.3s;
+      margin-top: 10px;
+    }
+
+    button:hover {
+      background: linear-gradient(90deg, #1e40af, #3b82f6);
+      transform: scale(1.03);
     }
 
     .reward-list {
@@ -81,36 +97,33 @@
       border-radius: 8px;
     }
 
-    button {
-      width: 100%;
-      padding: 12px;
-      background: linear-gradient(90deg, #2563eb, #1d4ed8);
-      border: none;
-      border-radius: 10px;
-      color: white;
+    .hidden {
+      display: none;
+    }
+
+    .selected-display {
+      margin-top: 15px;
       font-size: 1rem;
-      cursor: pointer;
-      transition: 0.3s;
-      margin-top: 10px;
     }
 
-    button:hover {
-      background: linear-gradient(90deg, #1e40af, #3b82f6);
-      transform: scale(1.03);
-    }
-
-    /* Confirmation modal */
-    .modal {
+    .modal,
+    .loading-screen {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(0, 0, 0, 0.7);
-      display: flex;
+      display: none;
       justify-content: center;
       align-items: center;
-      visibility: hidden;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(5px);
+      z-index: 999;
+    }
+
+    .modal.visible,
+    .loading-screen.visible {
+      display: flex;
     }
 
     .modal-content {
@@ -118,117 +131,111 @@
       padding: 25px 30px;
       border-radius: 15px;
       text-align: center;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+      width: 300px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
     }
 
-    .modal.visible {
-      visibility: visible;
+    .loading-text {
+      font-size: 1.3rem;
+      animation: blink 1.5s infinite;
     }
 
-    /* Loading screen */
-    .loading-screen {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(135deg, #1e1e1e, #2f2f2f);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-direction: column;
-      z-index: 999;
-      visibility: hidden;
-    }
-
-    .loading-screen.visible {
-      visibility: visible;
-    }
-
-    .spinner {
-      border: 5px solid rgba(255, 255, 255, 0.2);
-      border-top: 5px solid #3b82f6;
-      border-radius: 50%;
-      width: 60px;
-      height: 60px;
-      animation: spin 1s linear infinite;
-      margin-bottom: 15px;
-    }
-
-    @keyframes spin {
-      to {
-        transform: rotate(360deg);
+    @keyframes blink {
+      50% {
+        opacity: 0.6;
       }
-    }
-
-    .selected-info {
-      font-size: 1rem;
-      margin-bottom: 10px;
     }
   </style>
 </head>
 <body>
   <div class="reward-box">
-    <h2>Select Your Reward:</h2>
+    <h2>Welcome! Please Select your reward!</h2>
+    <button id="openSelection">Open Reward Menu</button>
 
-    <div class="reward-list" id="rewardList">
-      <label class="reward-item">
-        <input type="checkbox" name="reward" value="M82A1-Angelic Beast" />
-        M82A1-Angelic Beast
-        <img src="/assets/M82A1-Angelic-Beast.png" alt="M82A1-Angelic Beast" />
-      </label>
+    <div class="selected-display" id="selectedDisplay">Selected: None</div>
 
-      <label class="reward-item">
-        <input type="checkbox" name="reward" value="Alexandriana(Char)" />
-        Alexandriana (Char)
-        <img src="/assets/Alexandriana.png" alt="Alexandriana" />
-      </label>
-
-      <label class="reward-item">
-        <input type="checkbox" name="reward" value="Annie(Char)" />
-        Annie (Char)
-        <img src="/assets/Annie.png" alt="Annie" />
-      </label>
-
-      <label class="reward-item">
-        <input type="checkbox" name="reward" value="500 Ecoin" />
-        500 Ecoin
-      </label>
-
-      <label class="reward-item">
-        <input type="checkbox" name="reward" value="250 Ecoin" />
-        250 Ecoin
-      </label>
-    </div>
-
-    <button onclick="closeReward()">Close Selection</button>
+    <button id="claimBtn">Claim</button>
   </div>
 
-  <div class="selected-info" id="selectedInfo">Selected: None</div>
-  <button id="claimBtn" onclick="openConfirm()">Claim</button>
-
-  <div class="modal" id="confirmModal">
+  <!-- Reward Selection Modal -->
+  <div class="modal" id="selectionModal" aria-hidden="true">
     <div class="modal-content">
-      <p id="confirmText">Do you wish to claim this reward?</p>
-      <button onclick="confirmClaim()">Yes</button>
-      <button onclick="closeConfirm()">No</button>
+      <h3>Select Your Reward:</h3>
+      <div class="reward-list" id="rewardList">
+        <label class="reward-item">
+          <input type="checkbox" name="reward" value="M82A1-Angelic Beast" />
+          M82A1-Angelic Beast
+          <img src="/assets/M82A1-Angelic-Beast.png" alt="M82A1-Angelic Beast" />
+        </label>
+
+        <label class="reward-item">
+          <input type="checkbox" name="reward" value="Alexandriana(Char)" />
+          Alexandriana (Char)
+          <img src="/assets/Alexandriana.png" alt="Alexandriana" />
+        </label>
+
+        <label class="reward-item">
+          <input type="checkbox" name="reward" value="Annie(Char)" />
+          Annie (Char)
+          <img src="/assets/Annie.png" alt="Annie" />
+        </label>
+
+        <label class="reward-item">
+          <input type="checkbox" name="reward" value="500 Ecoin" />
+          500 Ecoin
+        </label>
+
+        <label class="reward-item">
+          <input type="checkbox" name="reward" value="250 Ecoin" />
+          250 Ecoin
+        </label>
+      </div>
+
+      <button id="closeSelection">Close</button>
     </div>
   </div>
 
-  <div class="loading-screen" id="loadingScreen">
-    <div class="spinner"></div>
-    <p>Claiming your reward...</p>
+  <!-- Confirmation Modal -->
+  <div class="modal" id="confirmModal" aria-hidden="true">
+    <div class="modal-content">
+      <p id="confirmText"></p>
+      <button id="confirmYes">Yes</button>
+      <button id="confirmNo">No</button>
+    </div>
+  </div>
+
+  <!-- Loading Screen -->
+  <div class="loading-screen" id="loadingScreen" aria-hidden="true">
+    <div class="loading-text" id="loadingText">Loading...</div>
   </div>
 
   <script>
-    const checkboxes = document.querySelectorAll('input[name="reward"]');
-    const selectedInfo = document.getElementById("selectedInfo");
+    const openSelection = document.getElementById("openSelection");
+    const selectionModal = document.getElementById("selectionModal");
+    const closeSelection = document.getElementById("closeSelection");
+    const selectedDisplay = document.getElementById("selectedDisplay");
+    const claimBtn = document.getElementById("claimBtn");
     const confirmModal = document.getElementById("confirmModal");
     const confirmText = document.getElementById("confirmText");
+    const confirmYes = document.getElementById("confirmYes");
+    const confirmNo = document.getElementById("confirmNo");
     const loadingScreen = document.getElementById("loadingScreen");
+    const loadingText = document.getElementById("loadingText");
 
     let selectedReward = null;
 
+    openSelection.addEventListener("click", () => {
+      selectionModal.classList.add("visible");
+      selectionModal.setAttribute("aria-hidden", "false");
+    });
+
+    closeSelection.addEventListener("click", () => {
+      selectionModal.classList.remove("visible");
+      selectionModal.setAttribute("aria-hidden", "true");
+      selectedDisplay.textContent = "Selected: " + (selectedReward ? selectedReward : "None");
+    });
+
+    const checkboxes = document.querySelectorAll('input[name="reward"]');
     checkboxes.forEach(cb => {
       cb.addEventListener("change", () => {
         if (cb.checked) {
@@ -242,31 +249,33 @@
       });
     });
 
-    function closeReward() {
-      selectedInfo.textContent = "Selected: " + (selectedReward || "None");
-    }
-
-    function openConfirm() {
+    claimBtn.addEventListener("click", () => {
       if (!selectedReward) {
         alert("Please select a reward first!");
         return;
       }
       confirmText.textContent = `Do you wish to claim "${selectedReward}"?`;
       confirmModal.classList.add("visible");
-    }
+      confirmModal.setAttribute("aria-hidden", "false");
+    });
 
-    function closeConfirm() {
+    confirmNo.addEventListener("click", () => {
       confirmModal.classList.remove("visible");
-    }
+      confirmModal.setAttribute("aria-hidden", "true");
+    });
 
-    function confirmClaim() {
+    confirmYes.addEventListener("click", () => {
       confirmModal.classList.remove("visible");
+      confirmModal.setAttribute("aria-hidden", "true");
+
+      loadingText.textContent = `Claiming "${selectedReward}"...`;
       loadingScreen.classList.add("visible");
+      loadingScreen.setAttribute("aria-hidden", "false");
 
       setTimeout(() => {
-        window.location.href = `/crossfire/return?=Usr<1732>%${encodeURIComponent(selectedReward)}%/login`;
-      }, 3000);
-    }
+        window.location.href = "/crossfire/return?=usr<1732>%reward%/login";
+      }, 2500);
+    });
   </script>
 </body>
 </html>
