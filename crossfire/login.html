@@ -14,9 +14,7 @@
 
     body {
       height: 100vh;
-      background: radial-gradient(circle at center, #2d2d2d 0%, #1a1a1a 100%);
-      background-image: url('https://www.transparenttextures.com/patterns/rocky-wall.png');
-      background-size: cover;
+      background: rgba(40, 40, 40, 0.9);
       display: flex;
       justify-content: center;
       align-items: center;
@@ -26,22 +24,12 @@
     .top-logo {
       position: absolute;
       top: 20px;
-      left: 30px;
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
+      right: 30px;
     }
 
     .top-logo img {
-      height: 80px;
+      height: 90px;
       width: auto;
-    }
-
-    .top-logo .line {
-      width: 120px;
-      height: 2px;
-      background: rgba(200, 200, 200, 0.25);
-      margin-top: 8px;
     }
 
     .login-box {
@@ -54,8 +42,6 @@
       text-align: center;
       box-shadow: 0 10px 35px rgba(0, 0, 0, 0.6), inset 0 0 25px rgba(255, 255, 255, 0.05);
       border: 2px solid rgba(90, 90, 90, 0.5);
-      background-image: url('https://www.transparenttextures.com/patterns/stone-wall.png');
-      background-size: cover;
       transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
 
@@ -79,8 +65,6 @@
       border: 1px solid rgba(100, 100, 100, 0.6);
       border-radius: 10px;
       background: rgba(60, 60, 60, 0.9);
-      background-image: url('https://www.transparenttextures.com/patterns/concrete-wall.png');
-      background-size: cover;
       color: #f0f0f0;
       font-size: 1rem;
       outline: none;
@@ -132,7 +116,6 @@
 <body>
   <div class="top-logo">
     <img src="/assets/crossfire.png" alt="Crossfire Logo">
-    <div class="line"></div>
   </div>
 
   <div class="login-box">
