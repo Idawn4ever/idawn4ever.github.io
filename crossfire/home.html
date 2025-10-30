@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Home | Edit-This</title>
+  <style>
+    /* --- Reset & base --- */
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: "Poppins", sans-serif; }
+    html,body { height: 100%; }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg,#0f172a,#1e3a8a);
+      color: #fff;
+      padding: 20px;
+    }
+
+    /* --- Card --- */
+    .card {
+      width: 420px;
+      max-width: calc(100% - 40px);
+      background: rgba(255,255,255,0.06);
+      border-radius: 18px;
+      padding: 32px;
+      text-align: center;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 10px 40px rgba(2,6,23,0.6);
+      transition: transform .25s ease;
+    }
+    .card:hover { transform: translateY(-4px); }
+
+    /* --- Title row --- */
+    .title-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+    .title-row h1 {
+      font-size: 1.6rem;
+      letter-spacing: 0.6px;
+      margin: 0;
+      line-height: 1;
+    }
+    .logo {
+      width: 54px;
+      height: 54px;
+      border-radius: 12px;
+      object-fit: cover;
+      box-shadow: 0 6px 18px rgba(2,6,23,0.45);
+    }
+
+    /* --- Timer --- */
+    .timer {
+      margin-top: 8px;
+      font-weight: 700;
+      font-size: 2.2rem;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+    .sub {
+      color: rgba(255,255,255,0.85);
+      opacity: 0.95;
+      font-size: 0.95rem;
+      margin-bottom: 18px;
+    }
+
+    /* --- Small details & button --- */
+    .note {
+      font-size: 0.88rem;
+      color: rgba(255,255,255,0.7);
+      margin-top: 6px;
+    }
+    .claim-btn {
+      display: inline-block;
+      margin-top: 16px;
+      padding: 10px 22px;
+      border-radius: 10px;
+      background: linear-gradient(90deg,#2563eb,#1d4ed8);
+      color: white;
+      text-decoration: none;
+      font-weight: 600;
+      transition: transform .15s ease;
+      border: none;
+      cursor: pointer;
+    }
+    .claim-btn:active { transform: translateY(1px); }
+    .claim-btn[disabled] { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+    /* responsive */
+    @media (max-width: 420px) {
+      .timer { font-size: 1.8rem; }
+      .logo { width: 46px; height: 46px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="card" role="main" aria-labelledby="home-title">
+    <div class="title-row">
+      <h1 id="home-title">Edit-This</h1>
+      <img src="/assets/ecoin.png" alt="Logo" class="logo" />
+    </div>
+
+    <div id="timer" class="timer" aria-live="polite">--:--:--</div>
+    <div class="sub">Time before you receive your reward</div>
+
+    <div id="after" class="note" style="display:none;">Reward available! You can claim it now.</div>
+    <button id="claimBtn" class="claim-btn" disabled>Claim Reward</button>
+  </main>
+
+  <script>
+    // Default starting duration (63 hours, 18 minutes, 12 seconds)
+    const DEFAULT_SECONDS = 63 * 3600 + 18 * 60 + 12;
+    const STORAGE_KEY = "editThis_reward_target";
+
+    // Get or set target timestamp in ms (persist in sessionStorage)
+    function getTargetTimestamp() {
+      const stored = sessionStorage.getItem(STORAGE_KEY);
+      if (stored) {
+        const parsed = Number(stored);
+        if (!Number.isNaN(parsed)) return parsed;
+      }
+      // create a new target and store it
+      const target = Date.now() + DEFAULT_SECONDS * 1000;
+      sessionStorage.setItem(STORAGE_KEY, String(target));
+      return target;
+    }
+
+    const targetTs = getTargetTimestamp();
+
+    const timerEl = document.getElementById("timer");
+    const afterEl = document.getElementById("after");
+    const claimBtn = document.getElementById("claimBtn");
+
+    // Format seconds as HH:MM:SS, allowing hours > 24
+    function formatHHMMSS(totalSeconds) {
+      totalSeconds = Math.max(0, Math.floor(totalSeconds));
+      const s = totalSeconds % 60;
+      const m = Math.floor((totalSeconds / 60)) % 60;
+      const h = Math.floor(totalSeconds / 3600);
+      const pad = (n) => String(n).padStart(2, "0");
+      return `${pad(h)}:${pad(m)}:${pad(s)}`;
+    }
+
+    // Update function
+    function update() {
+      const now = Date.now();
+      const diffMs = targetTs - now;
+      const diffSec = Math.ceil(diffMs / 1000);
+      if (diffSec > 0) {
+        timerEl.textContent = formatHHMMSS(diffSec);
+        afterEl.style.display = "none";
+        claimBtn.disabled = true;
+      } else {
+        timerEl.textContent = "00:00:00";
+        afterEl.style.display = "block";
+        claimBtn.disabled = false;
+      }
+    }
+
+    // initial update + interval
+    update();
+    const intervalId = setInterval(() => {
+      update();
+      // if target reached, we can optionally clear interval but keep it running for simplicity
+      if (Date.now() >= targetTs) {
+        // keep showing reward state but no need to keep running heavy logic
+        // clearInterval(intervalId); // optional
+      }
+    }, 1000);
+
+    // Example claim button behavior (no backend): clears target and disables button after click
+    claimBtn.addEventListener("click", () => {
+      // Simple UI feedback
+      claimBtn.textContent = "Claimed ✓";
+      claimBtn.disabled = true;
+      // Remove stored target so next session will have a fresh countdown if desired
+      sessionStorage.removeItem(STORAGE_KEY);
+      afterEl.textContent = "You've successfully claimed your reward.";
+    });
+  </script>
+</body>
+</html>
