@@ -7,59 +7,80 @@
 <style>
   :root{--bg:#000;--fg:lime;}
   html,body{height:100%;margin:0;background:var(--bg);color:var(--fg);font-family:monospace}
-  .wrap{max-width:420px;margin:80px auto;text-align:center}
-  input{width:90%;padding:8px;margin:8px 0;background:#111;border:1px solid var(--fg);color:var(--fg)}
-  button{padding:8px 16px;background:var(--fg);color:#000;border:none;cursor:pointer}
+  .wrap{max-width:420px;margin:60px auto;text-align:center}
+  .box{background:#050505;border:1px solid rgba(255,255,255,0.04);padding:20px;border-radius:8px}
+  h2{margin:0 0 12px}
+  input{width:100%;padding:8px;margin:8px 0;background:#000;border:1px solid var(--fg);color:var(--fg);border-radius:4px}
+  button{width:100%;padding:8px;margin-top:8px;background:var(--fg);color:#000;border:none;border-radius:4px;cursor:pointer}
+  .note{opacity:.9;font-size:13px;margin-top:10px}
+  footer{padding:10px 16px;border-top:1px solid rgba(255,255,255,0.05);position:fixed;bottom:0;width:100%;text-align:center;font-size:13px}
   a{color:var(--fg);text-decoration:none}
-  .note{opacity:.9;font-size:13px}
-  footer{padding:10px 16px;border-top:1px solid rgba(255,255,255,0.05);display:flex;justify-content:space-between;font-size:13px;opacity:.8;position:fixed;bottom:0;width:100%}
-  footer a{color:var(--fg);text-decoration:none}
 </style>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
-const supabase = createClient("https://thdzrkzdkdihjximoalb.supabase.co", 
-"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRoZHpya3pka2RpaGp4aW1vYWxiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAyNDkzNzIsImV4cCI6MjA3NTgyNTM3Mn0.uHpGricbNHVWsndClTd8K7LVRTCzWLF0ziwuGKvOSTw")
+
+const SUPABASE_URL = "https://thdzrkzdkdihjximoalb.supabase.co"
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRoZHpya3pka2RpaGp4aW1vYWxiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAyNDkzNzIsImV4cCI6MjA3NTgyNTM3Mn0.uHpGricbNHVWsndClTd8K7LVRTCzWLF0ziwuGKvOSTw"
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
 
 function setCookie(name,value,days){
   const max = days ? `; max-age=${days*24*60*60}` : ''
   document.cookie = name + '=' + encodeURIComponent(value) + '; path=/' + max
 }
+function clearCookie(name){ document.cookie = name + '=; path=/; max-age=0' }
+function getCookie(name){ const c = document.cookie.split('; ').find(r=>r.startsWith(name+'=')); if(!c) return null; try{return JSON.parse(decodeURIComponent(c.split('=')[1]))}catch(e){return null} }
 
 document.addEventListener('DOMContentLoaded', ()=>{
-  if(document.cookie.split('; ').some(c=>c.startsWith('admin='))) return location.href='/adminpanel'
+  // if already logged in as admin -> go to panel
+  if(document.cookie.split('; ').some(c=>c.trim().startsWith('admin='))) return location.href='/adminpanel'
+
   const form = document.getElementById('adminForm')
+  const msg = document.getElementById('msg')
+
   form.addEventListener('submit', async (e)=>{
     e.preventDefault()
+    msg.textContent = ''
     const username = document.getElementById('username').value.trim()
     const password = document.getElementById('password').value
-    if(!username || !password) return alert('enter username & password')
+    if(!username || !password){ msg.textContent = 'fill username & password'; return }
 
-    const { data, error } = await supabase
-      .from('admins')
-      .select('id,username')
-      .eq('username', username)
-      .eq('password', password)
-      .maybeSingle()
+    try{
+      // dynamic check against admins table (multiple admins supported)
+      const { data, error } = await supabase
+        .from('admins')
+        .select('id,username')
+        .eq('username', username)
+        .eq('password', password)
+        .maybeSingle()
 
-    if(error || !data) return alert('invalid admin credentials')
-    setCookie('admin', JSON.stringify({ id: data.id, username: data.username }), 7)
-    location.href = '/adminpanel'
+      if(error) { console.error(error); msg.textContent = 'login error'; return }
+      if(!data){ msg.textContent = 'invalid credentials'; return }
+
+      // success -> set cookie and redirect to adminpanel
+      setCookie('admin', JSON.stringify({ id: data.id, username: data.username }), 7)
+      location.href = '/adminpanel'
+    }catch(err){
+      console.error(err)
+      msg.textContent = 'unexpected error'
+    }
   })
 })
 </script>
 </head>
 <body>
   <div class="wrap">
-    <h2>Admin Login</h2>
-    <form id="adminForm">
-      <input id="username" type="text" placeholder="Username" required><br>
-      <input id="password" type="password" placeholder="Password" required><br>
-      <button type="submit">Login</button>
-    </form>
-    <p class="note"></p>
+    <div class="box">
+      <h2>Admin Login</h2>
+      <form id="adminForm">
+        <input id="username" type="text" placeholder="Username" autocomplete="username">
+        <input id="password" type="password" placeholder="Password" autocomplete="current-password">
+        <button type="submit">Login</button>
+      </form>
+      <div id="msg" class="note" role="status" aria-live="polite"></div>
+      <p class="note"><a href="/home">← Back to site</a></p>
+    </div>
   </div>
-  <footer>
-    <div>Idawn™</div>
-  </footer>
+
+  <footer>Idawn™</footer>
 </body>
 </html>
