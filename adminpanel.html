@@ -1,4 +1,3 @@
-html
 <!doctype html>
 
 <html>
@@ -42,8 +41,8 @@ th{background:#111}
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
 const supabase = createClient(
   "https://thdzrkzdkdihjximoalb.supabase.co",
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRoZHpya3pka2hqaW1vYWxiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAyNDkzNzIsImV4cCI6MjA3NTgyNTM3Mn0.uHpGricbNHVWsndClTd8K7LVRTCzWLF0ziwuGKvOSTw"
-)
+  "YOUR_API_KEY_HERE" // Replace with your actual API key
+);
 
 function getCookie(name) {
     const c = document.cookie.split('; ').find(r => r.startsWith(name + '='));
