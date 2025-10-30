@@ -22,37 +22,38 @@
     }
 
     .reward-box {
-      width: 350px;
+      width: 380px;
       background: rgba(255, 255, 255, 0.08);
-      border-radius: 20px;
-      padding: 35px 30px;
-      backdrop-filter: blur(12px);
+      border-radius: 24px;
+      padding: 40px 35px;
+      backdrop-filter: blur(14px);
       text-align: center;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-      transition: transform 0.3s ease;
+      box-shadow: 0 8px 40px rgba(0, 0, 0, 0.45);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
 
     .reward-box:hover {
-      transform: translateY(-3px);
+      transform: translateY(-4px);
+      box-shadow: 0 12px 48px rgba(0, 0, 0, 0.55);
     }
 
     h2 {
-      font-size: 1.5rem;
-      margin-bottom: 20px;
+      font-size: 1.6rem;
+      margin-bottom: 25px;
       letter-spacing: 1px;
     }
 
     button {
       width: 100%;
-      padding: 12px;
+      padding: 13px;
       background: linear-gradient(90deg, #2563eb, #1d4ed8);
       border: none;
-      border-radius: 10px;
+      border-radius: 12px;
       color: white;
       font-size: 1rem;
       cursor: pointer;
-      transition: 0.3s;
-      margin-top: 10px;
+      transition: all 0.3s ease;
+      margin-top: 12px;
     }
 
     button:hover {
@@ -71,15 +72,15 @@
     .reward-item {
       display: flex;
       align-items: center;
-      background: rgba(255, 255, 255, 0.1);
-      padding: 10px;
+      background: rgba(255, 255, 255, 0.12);
+      padding: 10px 12px;
       border-radius: 10px;
       margin-bottom: 10px;
       transition: background 0.2s;
     }
 
     .reward-item:hover {
-      background: rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.22);
     }
 
     .reward-item input[type="checkbox"] {
@@ -90,8 +91,8 @@
     }
 
     .reward-item img {
-      width: 50px;
-      height: 50px;
+      width: 48px;
+      height: 48px;
       object-fit: contain;
       margin-left: auto;
       border-radius: 8px;
@@ -102,8 +103,18 @@
     }
 
     .selected-display {
-      margin-top: 15px;
+      margin-top: 22px;
       font-size: 1rem;
+      opacity: 0.9;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      padding: 10px;
+      backdrop-filter: blur(6px);
+      transition: background 0.3s;
+    }
+
+    .selected-display:hover {
+      background: rgba(255, 255, 255, 0.16);
     }
 
     .modal,
@@ -117,7 +128,7 @@
       justify-content: center;
       align-items: center;
       background: rgba(0, 0, 0, 0.75);
-      backdrop-filter: blur(5px);
+      backdrop-filter: blur(6px);
       z-index: 999;
     }
 
@@ -127,23 +138,29 @@
     }
 
     .modal-content {
-      background: rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.12);
       padding: 25px 30px;
-      border-radius: 15px;
+      border-radius: 18px;
       text-align: center;
-      width: 300px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      width: 320px;
+      box-shadow: 0 4px 25px rgba(0, 0, 0, 0.3);
+      animation: fadeIn 0.25s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
     }
 
     .loading-text {
       font-size: 1.3rem;
-      animation: blink 1.5s infinite;
+      animation: pulse 1.2s infinite;
+      color: #93c5fd;
     }
 
-    @keyframes blink {
-      50% {
-        opacity: 0.6;
-      }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
     }
   </style>
 </head>
@@ -151,10 +168,9 @@
   <div class="reward-box">
     <h2>Welcome! Please Select your reward!</h2>
     <button id="openSelection">Open Reward Menu</button>
+    <button id="claimBtn">Claim</button>
 
     <div class="selected-display" id="selectedDisplay">Selected: None</div>
-
-    <button id="claimBtn">Claim</button>
   </div>
 
   <!-- Reward Selection Modal -->
