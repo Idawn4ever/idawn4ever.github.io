@@ -58,7 +58,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
 
       // success -> set cookie and redirect to adminpanel
       setCookie('admin', JSON.stringify({ id: data.id, username: data.username }), 7)
-      location.href = '/admin/panel'
+      location.href = '/adminpanel'
     }catch(err){
       console.error(err)
       msg.textContent = 'unexpected error'
