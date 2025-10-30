@@ -1,221 +1,177 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Panel</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background-color: #0d0d0d;
-      color: white;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
-    .border-box {
-      border: 2px solid #fff;
-      border-radius: 10px;
-      width: 90%;
-      height: 90%;
-      padding: 20px;
-      position: relative;
-      overflow: hidden;
-    }
-    .logo {
-      position: absolute;
-      top: 15px;
-      right: 60px;
-      width: 40px;
-    }
-    .menu-btn {
-      position: absolute;
-      top: 15px;
-      right: 15px;
-      background: none;
-      border: none;
-      color: white;
-      font-size: 24px;
-      cursor: pointer;
-    }
-    .sidebar {
-      position: fixed;
-      top: 0;
-      right: -250px;
-      width: 250px;
-      height: 100%;
-      background-color: #1a1a1a;
-      padding: 20px;
-      transition: right 0.3s ease;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-    }
-    .sidebar.active {
-      right: 0;
-    }
-    .logout-btn {
-      background: red;
-      border: none;
-      color: white;
-      padding: 10px;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    .btn {
-      margin-top: 50px;
-      padding: 10px 20px;
-      background-color: #222;
-      border: 1px solid #555;
-      border-radius: 5px;
-      color: white;
-      cursor: pointer;
-    }
-    #database {
-      margin-top: 20px;
-      display: none;
-      overflow-x: auto;
-      width: 100%;
-      height: 75%;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-    th, td {
-      border: 1px solid #444;
-      padding: 10px;
-      text-align: center;
-    }
-    .options {
-      cursor: pointer;
-      font-weight: bold;
-    }
-    .options-menu {
-      display: none;
-      position: absolute;
-      background-color: #222;
-      border: 1px solid #555;
-      border-radius: 5px;
-      padding: 5px;
-      z-index: 10;
-    }
-    .options-menu button {
-      display: block;
-      width: 100%;
-      background: none;
-      border: none;
-      color: white;
-      padding: 5px;
-      text-align: left;
-      cursor: pointer;
-    }
-    .options-menu button:hover {
-      background-color: #333;
-    }
-  </style>
+<meta charset="utf-8">
+<title>Admin Panel</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+  :root { --bg:#000; --fg:lime; --box:#080808; }
+  html,body{margin:0;height:100%;background:var(--bg);color:var(--fg);font-family:monospace}
+  .top{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid rgba(255,255,255,0.05)}
+  #logo{height:40px}
+  .menu-btn{cursor:pointer;width:28px;height:20px;position:relative;border:none;background:transparent}
+  .menu-btn span,.menu-btn::before,.menu-btn::after{content:'';display:block;height:2px;width:100%;background:var(--fg);position:absolute;left:0;transition:.2s}
+  .menu-btn span{top:9px} .menu-btn::before{top:0} .menu-btn::after{bottom:0}
+
+  .sidebar{position:fixed;right:-260px;top:0;height:100%;width:260px;background:#050505;border-left:1px solid rgba(255,255,255,0.05);padding:16px;transition:right .25s ease;z-index:100;overflow-y:auto}
+  .sidebar.show{right:0}
+  .overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);z-index:99}
+  .overlay.show{display:block}
+  .sidebar button{display:block;margin-top:16px;padding:8px;border:none;background:var(--fg);color:#000;cursor:pointer;width:100%;border-radius:6px}
+
+  .container{margin:20px auto;padding:16px;max-width:95%;background:var(--box);border:1px solid rgba(255,255,255,0.1);border-radius:8px;min-height:75vh}
+  .btn{background:var(--fg);color:#000;border:none;padding:8px 14px;border-radius:6px;cursor:pointer}
+  #dbContainer{display:none;margin-top:12px}
+  #dbContainer.show{display:block}
+  .table-wrap{overflow:auto;max-width:100%}
+  table{width:100%;border-collapse:collapse;white-space:nowrap}
+  th,td{border:1px solid rgba(255,255,255,0.08);padding:8px;text-align:left}
+  th{background:#111}
+  .actions{position:relative}
+  .dot-btn{background:none;border:none;color:var(--fg);cursor:pointer;font-size:18px;padding:4px 8px}
+  .dot-menu{display:none;position:absolute;right:6px;top:26px;background:#111;border:1px solid rgba(255,255,255,0.08);border-radius:6px;z-index:50;min-width:140px}
+  .dot-menu.show{display:block}
+  .dot-menu button{display:block;width:100%;background:none;color:var(--fg);border:none;text-align:left;padding:8px;cursor:pointer}
+  .dot-menu button:hover{background:#222}
+  .edit-box{display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#111;padding:18px;border:1px solid rgba(255,255,255,0.08);border-radius:8px;z-index:200;width:320px}
+  .edit-box input{width:100%;padding:8px;margin-bottom:10px;background:#000;border:1px solid var(--fg);color:var(--fg);border-radius:6px}
+  .edit-row{display:flex;gap:8px}
+  .edit-row .btn{flex:1}
+</style>
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+const supabase = createClient("https://thdzrkzdkdihjximoalb.supabase.co",
+"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRoZHpya3pka2RpaGp4aW1vYWxiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAyNDkzNzIsImV4cCI6MjA3NTgyNTM3Mn0.uHpGricbNHVWsndClTd8K7LVRTCzWLF0ziwuGKvOSTw")
+
+function getCookie(name){ const c=document.cookie.split('; ').find(r=>r.startsWith(name+'=')); if(!c) return null; try{return JSON.parse(decodeURIComponent(c.split('=')[1]))}catch(e){return null}}
+function clearCookie(name){ document.cookie = name + '=; path=/; max-age=0' }
+
+document.addEventListener('DOMContentLoaded', async()=> {
+  const admin = getCookie('admin')
+  if(!admin) return location.href = 'admin.html'
+
+  const menuBtn = document.getElementById('menuBtn')
+  const sidebar = document.getElementById('sidebar')
+  const overlay = document.getElementById('overlay')
+  const logoutBtn = document.getElementById('logout')
+  const dbBtn = document.getElementById('dbBtn')
+  const dbContainer = document.getElementById('dbContainer')
+  const editBox = document.getElementById('editBox')
+  const editInput = document.getElementById('editInput')
+  const saveEdit = document.getElementById('saveEdit')
+  const cancelEdit = document.getElementById('cancelEdit')
+  let editId=null, editField=null
+
+  // sidebar hidden default
+  sidebar.classList.remove('show')
+
+  // sidebar toggle
+  menuBtn.addEventListener('click', ()=>{ sidebar.classList.toggle('show'); overlay.classList.toggle('show') })
+  overlay.addEventListener('click', ()=>{ sidebar.classList.remove('show'); overlay.classList.remove('show') })
+  logoutBtn.addEventListener('click', ()=>{ clearCookie('admin'); location.href='admin.html' })
+
+  // Database toggle
+  dbBtn.addEventListener('click', async ()=>{
+    const show = dbContainer.classList.toggle('show')
+    if(show) await loadUsers()
+  })
+
+  async function loadUsers(){
+    dbContainer.innerHTML = '<div class="table-wrap">Loading...</div>'
+    const { data, error } = await supabase.from('users').select('id,username,password,created_at').order('created_at',{ascending:false})
+    if(error){ dbContainer.innerHTML = `<div class="table-wrap">Error loading users: ${error.message}</div>`; return }
+    if(!data || data.length === 0){ dbContainer.innerHTML = '<div class="table-wrap">No users</div>'; return }
+
+    const rows = data.map(u=>{
+      const created = u.created_at ? new Date(u.created_at).toLocaleString() : '-'
+      return `<tr data-id="${u.id}">
+        <td>${escapeHtml(u.username)}</td>
+        <td>${escapeHtml(u.password)}</td>
+        <td>${created}</td>
+        <td class="actions">
+          <button class="dot-btn" aria-label="menu">⋮</button>
+          <div class="dot-menu">
+            <button class="editUser">Edit User</button>
+            <button class="editPass">Edit Password</button>
+            <button class="delUser">Delete User</button>
+          </div>
+        </td>
+      </tr>`
+    }).join('')
+
+    dbContainer.innerHTML = `<div class="table-wrap"><table><thead><tr><th>Username</th><th>Password</th><th>Date Created</th><th>Actions</th></tr></thead><tbody>${rows}</tbody></table></div>`
+
+    document.querySelectorAll('.dot-btn').forEach(btn=>{
+      btn.addEventListener('click', (e)=>{
+        const menu = e.target.nextElementSibling
+        document.querySelectorAll('.dot-menu').forEach(m=>{ if(m !== menu) m.classList.remove('show') })
+        menu.classList.toggle('show')
+      })
+    })
+
+    const users = data
+    document.querySelectorAll('.editUser').forEach((btn,i)=>{
+      btn.addEventListener('click', ()=>{
+        editId = users[i].id; editField = 'username'; editInput.value = users[i].username; editBox.style.display='block'
+      })
+    })
+    document.querySelectorAll('.editPass').forEach((btn,i)=>{
+      btn.addEventListener('click', ()=>{
+        editId = users[i].id; editField = 'password'; editInput.value = users[i].password; editBox.style.display='block'
+      })
+    })
+    document.querySelectorAll('.delUser').forEach((btn,i)=>{
+      btn.addEventListener('click', ()=> deleteUser(users[i].id))
+    })
+  }
+
+  async function deleteUser(id){
+    if(!confirm('Delete this user?')) return
+    const { error } = await supabase.from('users').delete().eq('id', id)
+    if(error) return alert('Error deleting: '+error.message)
+    await loadUsers()
+  }
+
+  saveEdit.addEventListener('click', async ()=>{
+    if(!editId || !editField) return
+    const payload = { [editField]: editInput.value }
+    const { error } = await supabase.from('users').update(payload).eq('id', editId)
+    editBox.style.display = 'none'
+    editId = null; editField = null
+    if(error) return alert('Error saving: '+error.message)
+    await loadUsers()
+  })
+  cancelEdit.addEventListener('click', ()=>{ editBox.style.display='none'; editId=null; editField=null })
+
+  function escapeHtml(str){ if(str==null) return ''; return String(str).replace(/[&<>"']/g, s=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' })[s]) }
+})
+</script>
 </head>
 <body>
-  <div class="border-box">
-    <img src="/assets/logo.png" class="logo">
-    <button class="menu-btn" onclick="toggleSidebar()">☰</button>
-    <button class="btn" onclick="toggleDatabase()">Database</button>
-    <div id="database">
-      <table id="userTable">
-        <thead>
-          <tr>
-            <th>Username</th>
-            <th>Password</th>
-            <th>Date Created</th>
-            <th>Options</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </div>
+  <div class="top">
+    <img id="logo" src="assets/logo.png" alt="logo">
+    <button id="menuBtn" class="menu-btn"><span></span></button>
   </div>
 
-  <div class="sidebar" id="sidebar">
-    <div>
-      <h3>Logged in as:</h3>
-      <p id="loggedUser"></p>
-    </div>
-    <button class="logout-btn" onclick="logout()">Logout</button>
+  <div id="overlay" class="overlay"></div>
+
+  <div id="sidebar" class="sidebar" aria-hidden="true">
+    <div>Logged in as <strong id="adminName">Admin</strong></div>
+    <button id="logout">Log Out</button>
   </div>
 
-  <script type="module">
-    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
-    const supabaseUrl = 'YOUR_SUPABASE_URL';
-    const supabaseKey = 'YOUR_SUPABASE_KEY';
-    const supabase = createClient(supabaseUrl, supabaseKey);
+  <div class="container">
+    <button id="dbBtn" class="btn">Database</button>
+    <div id="dbContainer"></div>
+  </div>
 
-    const sidebar = document.getElementById("sidebar");
-    function toggleSidebar() {
-      sidebar.classList.toggle("active");
-    }
-
-    function toggleDatabase() {
-      const db = document.getElementById("database");
-      db.style.display = db.style.display === "none" ? "block" : "none";
-    }
-
-    function logout() {
-      document.cookie = "admin_logged_in=; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
-      window.location.href = "admin.html";
-    }
-
-    async function loadUsers() {
-      const { data } = await supabase.from("users").select("*");
-      const tableBody = document.querySelector("#userTable tbody");
-      tableBody.innerHTML = "";
-      data.forEach(u => {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${u.username}</td>
-          <td>${u.password}</td>
-          <td>${new Date(u.created_at).toLocaleString()}</td>
-          <td>
-            <span class="options" onclick="toggleOptions(this)">⋮</span>
-            <div class="options-menu">
-              <button onclick="editUser('${u.username}')">Edit User</button>
-              <button onclick="editPassword('${u.username}')">Edit Password</button>
-              <button onclick="deleteUser('${u.username}')">Delete User</button>
-            </div>
-          </td>`;
-        tableBody.appendChild(tr);
-      });
-    }
-
-    window.toggleOptions = function(el) {
-      const menu = el.nextElementSibling;
-      menu.style.display = menu.style.display === "block" ? "none" : "block";
-    };
-
-    window.deleteUser = async function(username) {
-      await supabase.from("users").delete().eq("username", username);
-      loadUsers();
-    };
-
-    window.editUser = async function(username) {
-      const newName = prompt("Enter new username:", username);
-      if (newName)
-        await supabase.from("users").update({ username: newName }).eq("username", username);
-      loadUsers();
-    };
-
-    window.editPassword = async function(username) {
-      const newPass = prompt("Enter new password:");
-      if (newPass)
-        await supabase.from("users").update({ password: newPass }).eq("username", username);
-      loadUsers();
-    };
-
-    const cookie = document.cookie.split("; ").find(r => r.startsWith("admin_logged_in="));
-    if (!cookie) window.location.href = "admin.html";
-    else loadUsers();
-    document.getElementById("loggedUser").innerText = cookie.split("=")[1];
-  </script>
+  <div class="edit-box" id="editBox" role="dialog" aria-modal="true">
+    <h3 style="margin:0 0 8px">Edit</h3>
+    <input id="editInput" type="text" />
+    <div class="edit-row">
+      <button id="saveEdit" class="btn">Save</button>
+      <button id="cancelEdit" class="btn">Cancel</button>
+    </div>
+  </div>
 </body>
 </html>
