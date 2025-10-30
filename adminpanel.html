@@ -63,12 +63,28 @@ document.addEventListener('DOMContentLoaded', async()=> {
   let editId=null, editField=null
 
   // sidebar hidden default
-  sidebar.classList.remove('show')
+  sidebar.style.right = "-260px"
+  overlay.classList.remove('show')
 
   // sidebar toggle
-  menuBtn.addEventListener('click', ()=>{ sidebar.classList.toggle('show'); overlay.classList.toggle('show') })
-  overlay.addEventListener('click', ()=>{ sidebar.classList.remove('show'); overlay.classList.remove('show') })
-  logoutBtn.addEventListener('click', ()=>{ clearCookie('admin'); location.href='admin.html' })
+  menuBtn.addEventListener('click', ()=>{
+    const isOpen = sidebar.classList.contains('show')
+    if(isOpen){
+      sidebar.classList.remove('show')
+      overlay.classList.remove('show')
+    } else {
+      sidebar.classList.add('show')
+      overlay.classList.add('show')
+    }
+  })
+  overlay.addEventListener('click', ()=>{
+    sidebar.classList.remove('show')
+    overlay.classList.remove('show')
+  })
+  logoutBtn.addEventListener('click', ()=>{
+    clearCookie('admin')
+    location.href='admin.html'
+  })
 
   // Database toggle
   dbBtn.addEventListener('click', async ()=>{
