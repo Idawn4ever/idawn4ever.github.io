@@ -9,7 +9,7 @@
 html,body{margin:0;height:100%;background:var(--bg);color:var(--fg);font-family:monospace}
 .top{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid rgba(255,255,255,0.05)}
 #logo{height:40px}
-.menu-btn{cursor:pointer;width:28px;height:20px;position:relative;border:none;background:transparent;z-index:101}
+.menu-btn{cursor:pointer;width:28px;height:20px;position:relative;border:none;background:transparent;z-index:90} /* behind sidebar */
 .menu-btn span,.menu-btn::before,.menu-btn::after{content:'';display:block;height:2px;width:100%;background:var(--fg);position:absolute;left:0;transition:.2s}
 .menu-btn span{top:9px} .menu-btn::before{top:0} .menu-btn::after{bottom:0}
 
@@ -40,8 +40,10 @@ th{background:#111}
 </style>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
-const supabase = createClient("https://thdzrkzdkdihjximoalb.supabase.co",
-"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRoZHpya3pka2hqaW1vYWxiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAyNDkzNzIsImV4cCI6MjA3NTgyNTM3Mn0.uHpGricbNHVWsndClTd8K7LVRTCzWLF0ziwuGKvOSTw")
+const supabase = createClient(
+  "https://thdzrkzdkdihjximoalb.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRoZHpya3pka2hqaW1vYWxiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAyNDkzNzIsImV4cCI6MjA3NTgyNTM3Mn0.uHpGricbNHVWsndClTd8K7LVRTCzWLF0ziwuGKvOSTw"
+)
 
 function getCookie(name){ const c=document.cookie.split('; ').find(r=>r.startsWith(name+'=')); if(!c) return null; try{return JSON.parse(decodeURIComponent(c.split('=')[1]))}catch(e){return null}}
 function clearCookie(name){ document.cookie = name + '=; path=/; max-age=0' }
@@ -159,23 +161,4 @@ document.addEventListener('DOMContentLoaded', async()=> {
 
   <div id="overlay" class="overlay"></div>
 
-  <div id="sidebar" class="sidebar">
-    <div>Logged in as <strong id="adminName">Admin</strong></div>
-    <button id="logout">Log Out</button>
-  </div>
-
-  <div class="container">
-    <button id="dbBtn" class="btn">Database</button>
-    <div id="dbContainer"></div>
-  </div>
-
-  <div class="edit-box" id="editBox">
-    <h3>Edit</h3>
-    <input id="editInput" type="text" />
-    <div class="edit-row">
-      <button id="saveEdit" class="btn">Save</button>
-      <button id="cancelEdit" class="btn">Cancel</button>
-    </div>
-  </div>
-</body>
-</html>
+  <div
