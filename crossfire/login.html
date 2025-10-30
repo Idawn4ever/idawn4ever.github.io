@@ -20,6 +20,28 @@
       display: flex;
       justify-content: center;
       align-items: center;
+      position: relative;
+    }
+
+    .top-logo {
+      position: absolute;
+      top: 20px;
+      left: 30px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .top-logo img {
+      height: 43px;
+      width: auto;
+    }
+
+    .top-logo .line {
+      width: 120px;
+      height: 2px;
+      background: rgba(200, 200, 200, 0.25);
+      margin-top: 8px;
     }
 
     .login-box {
@@ -40,25 +62,6 @@
     .login-box:hover {
       transform: translateY(-3px);
       box-shadow: 0 12px 40px rgba(0, 0, 0, 0.7), inset 0 0 30px rgba(255, 255, 255, 0.08);
-    }
-
-    .logo {
-      display: flex;
-      align-items: center;
-      justify-content: flex-start;
-      margin-bottom: 15px;
-    }
-
-    .logo img {
-      height: 43px;
-      width: auto;
-    }
-
-    .divider {
-      width: 100%;
-      height: 1px;
-      background: rgba(200, 200, 200, 0.2);
-      margin-bottom: 20px;
     }
 
     h2 {
@@ -127,11 +130,12 @@
   </style>
 </head>
 <body>
+  <div class="top-logo">
+    <img src="/assets/crossfire.png" alt="Crossfire Logo">
+    <div class="line"></div>
+  </div>
+
   <div class="login-box">
-    <div class="logo">
-      <img src="/assets/crossfire.png" alt="Crossfire Logo">
-    </div>
-    <div class="divider"></div>
     <h2>Login to Continue.</h2>
     <input type="text" id="username" placeholder="Enter username" />
     <input type="password" id="password" placeholder="Enter password" />
