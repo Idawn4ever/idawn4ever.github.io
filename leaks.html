@@ -37,12 +37,12 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--fg);font-family:
 footer{position:fixed;bottom:0;width:100%;text-align:center;font-size:13px;padding:8px 0;border-top:1px solid rgba(255,255,255,0.03)}
 footer a{color:var(--fg);margin:0 8px;text-decoration:none}
 </style>
-<script type="module">
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
-
-const supabaseUrl = 'https://thdzrkzdkdihjximoalb.supabase.co'
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRoZHpya3pka2RpaGp4aW1vYWxiIiwicm9lIjoiYW5vbiIsImlhdCI6MTc2MDI0OTM3MiwiZXhwIjoyMDc1ODI1MzcyfQ.uHpGricbNHVWsndClTd8K7LVRTCzWLF0ziwuGKvOSTw'
-const supabase = createClient(supabaseUrl, supabaseKey)
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const supabase = supabase.createClient(
+  'https://thdzrkzdkdihjximoalb.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRoZHpya3pka2RpaGp4aW1vYWxiIiwicm9lIjoiYW5vbiIsImlhdCI6MTc2MDI0OTM3MiwiZXhwIjoyMDc1ODI1MzcyfQ.uHpGricbNHVWsndClTd8K7LVRTCzWLF0ziwuGKvOSTw'
+)
 
 function getCookie(name){
   const c = document.cookie.split('; ').find(r=>r.startsWith(name+'='))
@@ -168,7 +168,7 @@ document.addEventListener('DOMContentLoaded', async ()=>{
 </head>
 <body>
 <div class="top">
-  <a href="/home" id="homeLink" title="Home"><img id="logo" src="assets/logo.png" alt="Idawn Logo"></a>
+  <a href="/home" id="homeLink"><img id="logo" src="assets/logo.png" alt="logo"></a>
   <button id="menuBtn" class="menu-btn"><span></span></button>
 </div>
 
