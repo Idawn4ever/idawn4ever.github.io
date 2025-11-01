@@ -3,39 +3,37 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Leaks — Threads</title>
-<link rel="icon" href="assets/logo.png">
+<title>Leaks</title>
 <style>
 :root{--bg:#000;--fg:#7CFC00;--muted:rgba(255,255,255,.06)}
 *{box-sizing:border-box}
 html,body{height:100%;margin:0;background:var(--bg);color:var(--fg);font-family:monospace}
 .top{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--muted)}
-#logo{height:36px}
-.menu-btn{background:transparent;border:none;color:var(--fg);cursor:pointer;font-size:18px;padding:8px}
-.sidebar{position:fixed;right:-300px;top:0;height:100%;width:300px;background:#050505;border-left:1px solid var(--muted);padding:16px;transition:right .22s;z-index:120;display:flex;flex-direction:column;justify-content:space-between}
+#logo{height:34px}
+.menu-btn{background:transparent;border:none;color:var(--fg);cursor:pointer;padding:8px;font-size:18px}
+.sidebar{position:fixed;right:-320px;top:0;height:100%;width:320px;background:#050505;border-left:1px solid var(--muted);padding:16px;transition:right .22s;z-index:120;display:flex;flex-direction:column;justify-content:space-between}
 .sidebar.show{right:0}
 .overlay{position:fixed;inset:0;display:none;background:rgba(0,0,0,.6);z-index:110}
 .overlay.show{display:block}
 .content{padding:24px;max-width:1000px;margin:0 auto}
 .welcome-box{border:1px solid var(--muted);padding:20px;border-radius:8px;background:linear-gradient(180deg, rgba(255,255,255,0.01), transparent)}
 #makeThread{background:transparent;border:1px solid var(--fg);color:var(--fg);padding:10px 14px;border-radius:10px;cursor:pointer;font-weight:700}
-#makeThread:hover{background:var(--fg);color:#000}
 .thread-form{display:none;flex-direction:column;gap:8px;margin-top:12px}
 .thread-form.open{display:flex}
 .thread-form input[type="text"], .thread-form textarea{width:100%;padding:10px;border-radius:6px;border:1px solid var(--muted);background:#000;color:var(--fg)}
 .thread-form input[type="file"]{color:var(--fg)}
 .thread-form .btn{align-self:flex-end;padding:8px 12px;border-radius:8px;border:none;background:var(--fg);color:#000;cursor:pointer}
 .threads-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;margin-top:18px}
-.thread-card{border:1px solid var(--muted);padding:12px;border-radius:8px;cursor:pointer;background:rgba(255,255,255,0.01);position:relative}
+.thread-card{border:1px solid var(--muted);padding:12px;border-radius:8px;cursor:pointer;background:rgba(255,255,255,0.01);position:relative;overflow:hidden}
 .thread-card h3{margin:0;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .thread-meta{font-size:12px;color:var(--muted);margin-top:8px}
-.modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.7);z-index:200;padding:20px}
+.modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.75);z-index:200;padding:20px}
 .modal.show{display:flex}
-.modal-box{width:100%;max-width:720px;background:#050505;border-radius:10px;padding:18px;border:1px solid var(--muted);position:relative}
+.modal-box{width:100%;max-width:720px;background:#050505;border-radius:10px;padding:18px;border:1px solid var(--muted);position:relative;max-height:80vh;overflow:auto}
 .modal-head{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
 .modal-title{font-size:18px;margin:0}
 .three-dot{background:transparent;border:none;color:var(--fg);cursor:pointer;font-size:20px}
-.modal-content{margin-top:12px;border-top:1px dashed var(--muted);padding-top:12px}
+.modal-content{margin-top:12px;border-top:1px dashed var(--muted);padding-top:12px;white-space:pre-wrap}
 .file-link{display:inline-block;margin-top:12px;padding:8px 10px;border-radius:8px;border:1px solid var(--muted);text-decoration:none;color:var(--fg);background:transparent}
 .action-menu{position:absolute;right:12px;top:42px;background:#0a0a0a;border:1px solid var(--muted);padding:6px;border-radius:6px;display:none}
 .action-menu.show{display:block}
@@ -46,7 +44,6 @@ footer{position:fixed;bottom:0;left:0;right:0;text-align:center;padding:8px 0;bo
 </style>
 </head>
 <body>
-
 <div class="top">
   <div style="display:flex;align-items:center;gap:12px">
     <img id="logo" src="assets/logo.png" alt="logo">
@@ -72,7 +69,7 @@ footer{position:fixed;bottom:0;left:0;right:0;text-align:center;padding:8px 0;bo
   </div>
 </div>
 
-<div id="overlay" class="overlay" style="display:none"></div>
+<div id="overlay" class="overlay"></div>
 
 <div class="content">
   <div class="welcome-box">
@@ -135,9 +132,10 @@ footer{position:fixed;bottom:0;left:0;right:0;text-align:center;padding:8px 0;bo
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 
 <script>
-/* --- CONFIG: replace with your own if needed (kept original values you used earlier) --- */
+/* --- CONFIG (kept the values you previously used) --- */
 const SUPABASE_URL = 'https://thdzrkzdkdihjximoalb.supabase.co'
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRoZHpya3pka2RpaGp4aW1vYWxiIiwicm9lIjoiYW5vbiIsImlhdCI6MTc2MDI0OTM3MiwiZXhwIjoyMDc1ODI1MzcyfQ.uHpGricbNHVWsndClTd8K7LVRTCzWLF0ziwuGKvOSTw'
+const BUCKET = 'thread_files'  // your bucket
 
 const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
 
@@ -151,7 +149,7 @@ function clearCookie(name){ document.cookie = name + '=; path=/; max-age=0' }
 const esc = s => String(s||'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;')
 function showStatus(t, timeout=3000){ const el = document.getElementById('statusMsg'); el.textContent = t; if(timeout) setTimeout(()=>{ el.textContent = '' }, timeout) }
 
-/* ui refs */
+/* UI refs */
 const menuBtn = document.getElementById('menuBtn')
 const sidebar = document.getElementById('sidebar')
 const overlay = document.getElementById('overlay')
@@ -181,24 +179,24 @@ const saveEdit = document.getElementById('saveEdit')
 let currentUser = null
 let currentThread = null
 
-/* attach robust listeners after DOM ready */
-document.addEventListener('DOMContentLoaded', () => {
+/* attach listeners */
+document.addEventListener('DOMContentLoaded', async () => {
   try{
     const user = getCookie('user')
     if(!user || !user.username) return location.href = 'index.html'
     currentUser = user.username
     uname2.textContent = currentUser
 
-    // sidebar toggle
+    // sidebar
     menuBtn.addEventListener('click', ()=>{ sidebar.classList.toggle('show'); overlay.classList.toggle('show') })
     overlay.addEventListener('click', ()=>{ sidebar.classList.remove('show'); overlay.classList.remove('show') })
-    logoutBtn.addEventListener('click', ()=>{ clearCookie('user'); location.href = 'index.html' })
+    logoutBtn.addEventListener('click', ()=>{ clearCookie('user'); location.href='index.html' })
 
-    // thread form toggle
+    // form toggle
     makeThreadBtn.addEventListener('click', ()=>{ threadForm.classList.toggle('open'); threadForm.setAttribute('aria-hidden', threadForm.classList.contains('open') ? 'false' : 'true'); if(threadForm.classList.contains('open')) document.getElementById('threadTitle').focus() })
     cancelThreadBtn.addEventListener('click', ()=>{ threadForm.classList.remove('open'); threadForm.setAttribute('aria-hidden','true') })
 
-    // modal controls
+    // modal & actions
     modal.addEventListener('click', (e)=>{ if(e.target === modal) closeModal() })
     threeDotBtn.addEventListener('click', (e)=>{ e.stopPropagation(); actionMenu.classList.toggle('show') })
     document.addEventListener('click', (e)=>{ if(!actionMenu.contains(e.target) && e.target !== threeDotBtn) actionMenu.classList.remove('show') })
@@ -232,34 +230,56 @@ document.addEventListener('DOMContentLoaded', () => {
       }catch(err){ console.error(err); showStatus('Delete failed') }
     })
 
+    // create thread with file upload to Storage
     submitThreadBtn.addEventListener('click', async ()=>{
       const title = document.getElementById('threadTitle').value.trim()
       const content = document.getElementById('threadContent').value.trim()
       const fileInput = document.getElementById('threadFile')
-      const fileName = fileInput.files[0]?.name || ''
       if(!title || !content){ alert('Title and content required'); return }
       try{
-        const payload = { username: currentUser, title, content, file: fileName, created_at: new Date().toISOString() }
+        let file_path = null
+        let file_url = null
+        const file = fileInput.files[0]
+        if(file){
+          // build a unique path: username/timestamp_filename
+          const safeName = file.name.replaceAll(/\s+/g, '_')
+          const path = `${currentUser}/${Date.now()}_${safeName}`
+          const { data: uploadData, error: uploadErr } = await supabase.storage.from(BUCKET).upload(path, file)
+          if(uploadErr){
+            console.error('uploadErr', uploadErr)
+            showStatus('File upload failed')
+            return
+          }
+          file_path = uploadData.path || path
+          const { data: urlData } = supabase.storage.from(BUCKET).getPublicUrl(file_path)
+          file_url = urlData?.publicUrl || null
+        }
+
+        const payload = { username: currentUser, title, content, file_path, file_url, created_at: new Date().toISOString() }
         const { error } = await supabase.from('threads').insert([payload])
         if(error) throw error
+
+        // reset
         document.getElementById('threadTitle').value = ''
         document.getElementById('threadContent').value = ''
         fileInput.value = ''
-        threadForm.classList.remove('open')
-        threadForm.setAttribute('aria-hidden','true')
+        threadForm.classList.remove('open'); threadForm.setAttribute('aria-hidden','true')
         showStatus('Posted')
         await loadThreads()
-      }catch(err){ console.error(err); showStatus('Post failed') }
+      }catch(err){
+        console.error('post err', err)
+        showStatus('Post failed')
+      }
     })
 
-    // keyboard: Esc closes modal/form
+    // keyboard escape
     document.addEventListener('keydown', (e)=>{ if(e.key === 'Escape'){ if(modal.classList.contains('show')) closeModal(); else threadForm.classList.remove('open') } })
 
     // initial load
-    loadThreads()
+    await loadThreads()
   }catch(err){
-    console.error('init error', err)
-    alert('Initialization error. Check console.')
+    console.error('init err', err)
+    alert('Initialization error — check console')
   }
 })
 
@@ -291,23 +311,15 @@ function openThread(thread){
   currentThread = thread
   modalTitle.textContent = thread.title || '(no title)'
   modalMeta.textContent = `${thread.username} • ${new Date(thread.created_at).toLocaleString()}`
-  modalContent.innerHTML = ''
-  const p = document.createElement('div'); p.textContent = thread.content || ''
-  modalContent.appendChild(p)
+  modalContent.textContent = thread.content || ''
   modalFile.innerHTML = ''
-  if(thread.file){
-    // NOTE: we only save filename in DB; adjust real file storage path as needed
-    const a = document.createElement('a'); a.className = 'file-link'; a.href = `/uploads/${encodeURIComponent(thread.file)}`; a.download = thread.file; a.textContent = 'Download file'
+  if(thread.file_url){
+    const a = document.createElement('a'); a.className = 'file-link'; a.href = thread.file_url; a.target='_blank'; a.rel='noopener'; a.download = thread.file_path?.split('/').pop() || ''
+    a.textContent = 'Download file'
     modalFile.appendChild(a)
   }
-
-  if(thread.username === currentUser){
-    threeDotBtn.style.display = 'inline-block'
-  }else{
-    threeDotBtn.style.display = 'none'
-    actionMenu.classList.remove('show')
-  }
-
+  if(thread.username === currentUser) threeDotBtn.style.display = 'inline-block'
+  else { threeDotBtn.style.display = 'none'; actionMenu.classList.remove('show') }
   editArea.style.display = 'none'
   modal.classList.add('show'); modal.setAttribute('aria-hidden','false')
 }
