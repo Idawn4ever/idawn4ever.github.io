@@ -3,248 +3,334 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Leaks</title>
+<title>Leaks — Threads</title>
+<link rel="icon" href="assets/logo.png">
 <style>
-:root{--bg:#000;--fg:lime}
+:root{--bg:#000;--fg:#7CFC00;--muted:rgba(255,255,255,.06);--card:#071;--accent:#7CFC00}
+*{box-sizing:border-box}
 html,body{height:100%;margin:0;background:var(--bg);color:var(--fg);font-family:monospace}
-.top{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid rgba(255,255,255,0.03)}
-#logo{height:37px}
-.menu-btn{cursor:pointer;width:28px;height:20px;border:none;background:transparent;position:relative}
-.menu-btn span,.menu-btn::before,.menu-btn::after{content:"";position:absolute;left:0;height:2px;width:100%;background:var(--fg);transition:.2s}
-.menu-btn span{top:9px} .menu-btn::before{top:0} .menu-btn::after{bottom:0}
-.sidebar{position:fixed;right:-260px;top:0;height:100%;width:260px;background:#050505;border-left:1px solid rgba(255,255,255,0.03);padding:16px;transition:right .25s;z-index:100;visibility:hidden;opacity:0;display:flex;flex-direction:column;justify-content:space-between}
-.sidebar.show{right:0;visibility:visible;opacity:1}
-.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:99}
+.top{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--muted)}
+#logo{height:36px}
+.menu-btn{background:transparent;border:none;color:var(--fg);cursor:pointer;font-size:18px;padding:8px}
+.sidebar{position:fixed;right:-300px;top:0;height:100%;width:300px;background:#050505;border-left:1px solid var(--muted);padding:16px;transition:right .25s;z-index:120;display:flex;flex-direction:column;justify-content:space-between}
+.sidebar.show{right:0}
+.overlay{position:fixed;inset:0;display:none;background:rgba(0,0,0,.6);z-index:110}
 .overlay.show{display:block}
-.content{padding:24px;text-align:center}
-.welcome-box{border:1px solid var(--fg);padding:24px;margin:0 16px 16px;border-radius:4px;min-height:calc(100vh - 120px);display:flex;flex-direction:column}
-.thread-form{display:none;flex-direction:column;gap:8px;margin-bottom:16px;text-align:left}
+.content{padding:24px;max-width:900px;margin:0 auto}
+.welcome-box{border:1px solid var(--muted);padding:20px;border-radius:8px;background:linear-gradient(180deg, rgba(255,255,255,0.01), transparent)}
+#makeThread{background:transparent;border:1px solid var(--fg);color:var(--fg);padding:10px 14px;border-radius:10px;cursor:pointer;font-weight:700}
+#makeThread:hover{background:var(--fg);color:#000}
+.thread-form{display:none;flex-direction:column;gap:8px;margin-top:12px}
 .thread-form.open{display:flex}
-.thread-form input, .thread-form textarea{width:100%;padding:8px;border-radius:4px;border:1px solid var(--fg);background:#000;color:var(--fg);font-family:monospace}
-.thread-form button{align-self:flex-end;padding:8px 12px;border:none;background:var(--fg);color:#000;border-radius:4px;cursor:pointer}
-.threads-container{display:flex;flex-direction:column;gap:12px;margin-top:16px}
-.thread-box{border:1px solid var(--fg);padding:12px;border-radius:4px;text-align:left;position:relative}
-.thread-actions{margin-top:8px}
-.small-msg{font-size:13px;margin-top:8px}
-.delete-popup{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:#111;border:1px solid var(--fg);padding:16px;border-radius:6px;z-index:101;display:none;flex-direction:column;gap:8px}
-footer{position:fixed;bottom:0;width:100%;text-align:center;font-size:13px;padding:8px 0;border-top:1px solid rgba(255,255,255,0.03)}
-a{color:var(--fg)}
+.thread-form input[type="text"], .thread-form textarea{width:100%;padding:10px;border-radius:6px;border:1px solid var(--muted);background:#000;color:var(--fg)}
+.thread-form input[type="file"]{color:var(--fg)}
+.thread-form .btn{align-self:flex-end;padding:8px 12px;border-radius:8px;border:none;background:var(--fg);color:#000;cursor:pointer}
+.threads-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;margin-top:18px}
+.thread-card{border:1px solid var(--muted);padding:12px;border-radius:8px;cursor:pointer;background:rgba(255,255,255,0.01);position:relative}
+.thread-card h3{margin:0;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.thread-meta{font-size:12px;color:var(--muted);margin-top:8px}
+.modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.7);z-index:200;padding:20px}
+.modal.show{display:flex}
+.modal-box{width:100%;max-width:720px;background:#050505;border-radius:10px;padding:18px;border:1px solid var(--muted);position:relative}
+.modal-head{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.modal-title{font-size:18px;margin:0}
+.three-dot{background:transparent;border:none;color:var(--fg);cursor:pointer;font-size:20px}
+.modal-content{margin-top:12px;border-top:1px dashed var(--muted);padding-top:12px}
+.file-link{display:inline-block;margin-top:12px;padding:8px 10px;border-radius:8px;border:1px solid var(--muted);text-decoration:none;color:var(--fg);background:transparent}
+.action-menu{position:absolute;right:12px;top:42px;background:#0a0a0a;border:1px solid var(--muted);padding:6px;border-radius:6px;display:none}
+.action-menu.show{display:block}
+.action-menu button{display:block;background:transparent;border:none;color:var(--fg);padding:6px 10px;text-align:left;cursor:pointer}
+.edit-area{display:flex;flex-direction:column;gap:8px;margin-top:8px}
+.small-msg{font-size:13px;color:var(--muted);margin-top:8px}
+footer{position:fixed;bottom:0;left:0;right:0;text-align:center;padding:8px 0;border-top:1px solid var(--muted);background:linear-gradient(180deg, transparent, rgba(0,0,0,.2))}
 </style>
-<!-- Supabase UMD -->
+<!-- Supabase UMD bundle -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+</head>
+<body>
+<div class="top">
+  <div style="display:flex;align-items:center;gap:12px">
+    <img id="logo" src="assets/logo.png" alt="logo">
+    <strong>Leaks</strong>
+  </div>
+  <div>
+    <button id="menuBtn" class="menu-btn" type="button">☰</button>
+  </div>
+</div>
+
+<div id="sidebar" class="sidebar" role="navigation" aria-hidden="true">
+  <div>
+    <div>Account</div>
+    <div style="margin-top:10px">Logged in as <strong id="uname2"></strong></div>
+    <div style="margin-top:16px;display:flex;flex-direction:column;gap:8px">
+      <a href="/livechat">Live Chat</a>
+      <a href="/leaks">Leaks</a>
+      <a href="/shop">Shop</a>
+    </div>
+  </div>
+  <div style="margin-top:16px">
+    <button id="logout" class="btn" type="button" style="width:100%;padding:10px;border-radius:8px;background:var(--fg);color:#000;border:none;cursor:pointer">Log Out</button>
+  </div>
+</div>
+
+<div id="overlay" class="overlay"></div>
+
+<div class="content">
+  <div class="welcome-box">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div>
+        <h2 style="margin:0">Threads</h2>
+        <div class="small-msg" id="statusMsg"></div>
+      </div>
+      <div>
+        <button id="makeThread" type="button">+ New Thread</button>
+      </div>
+    </div>
+
+    <div id="threadForm" class="thread-form" aria-hidden="true" style="margin-top:12px">
+      <input id="threadTitle" type="text" placeholder="Title (required)" />
+      <textarea id="threadContent" rows="5" placeholder="Content (required)"></textarea>
+      <input id="threadFile" type="file" />
+      <div style="display:flex;gap:8px;justify-content:flex-end">
+        <button id="cancelThread" type="button" class="btn" style="background:transparent;border:1px solid var(--muted);color:var(--fg)">Cancel</button>
+        <button id="submitThread" type="button" class="btn">Post</button>
+      </div>
+    </div>
+
+    <div class="threads-grid" id="threadsGrid" aria-live="polite"></div>
+  </div>
+</div>
+
+<!-- modal -->
+<div id="modal" class="modal" role="dialog" aria-hidden="true">
+  <div class="modal-box" role="document">
+    <div class="modal-head">
+      <h3 id="modalTitle" class="modal-title"></h3>
+      <div style="position:relative">
+        <button id="threeDotBtn" class="three-dot" title="Actions" type="button">⋯</button>
+        <div id="actionMenu" class="action-menu" role="menu">
+          <button id="actionEdit" type="button">Edit</button>
+          <button id="actionDelete" type="button">Delete</button>
+        </div>
+      </div>
+    </div>
+    <div id="modalMeta" class="small-msg"></div>
+    <div id="modalContent" class="modal-content"></div>
+    <div id="modalFile"></div>
+    <div id="editArea" class="edit-area" style="display:none">
+      <textarea id="editTextarea" rows="6"></textarea>
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px">
+        <button id="cancelEdit" type="button" class="btn" style="background:transparent;border:1px solid var(--muted);color:var(--fg)">Cancel</button>
+        <button id="saveEdit" type="button" class="btn">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <a href="/contact">Contact</a> | Idawn™
+</footer>
+
 <script>
-/* CONFIG - keep same keys you used before */
+/* CONFIG: replace keys if needed (kept yours) */
 const SUPABASE_URL = 'https://thdzrkzdkdihjximoalb.supabase.co'
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRoZHpya3pka2RpaGp4aW1vYWxiIiwicm9lIjoiYW5vbiIsImlhdCI6MTc2MDI0OTM3MiwiZXhwIjoyMDc1ODI1MzcyfQ.uHpGricbNHVWsndClTd8K7LVRTCzWLF0ziwuGKvOSTw'
 
 const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
 
-/* cookie helpers (same format you used) */
+/* Helpers */
 function getCookie(name){
   const c = document.cookie.split('; ').find(r=>r.startsWith(name+'='))
   if(!c) return null
   try{ return JSON.parse(decodeURIComponent(c.split('=')[1])) }catch(e){ return null }
 }
 function clearCookie(name){ document.cookie = name + '=; path=/; max-age=0' }
+const esc = s => String(s||'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;')
 
-/* escape helper for injecting text safely */
-function escapeTxt(s=''){ return String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;') }
+/* UI elements */
+const menuBtn = document.getElementById('menuBtn')
+const sidebar = document.getElementById('sidebar')
+const overlay = document.getElementById('overlay')
+const logoutBtn = document.getElementById('logout')
+const uname2 = document.getElementById('uname2')
 
-/* show short toast-like messages inside container */
-function showMsg(container, text, timeout=4000){
-  let el = container.querySelector('.small-msg')
-  if(!el){ el = document.createElement('div'); el.className='small-msg'; container.appendChild(el) }
-  el.textContent = text
-  if(timeout) setTimeout(()=>{ if(el) el.textContent='' }, timeout)
+const makeThreadBtn = document.getElementById('makeThread')
+const threadForm = document.getElementById('threadForm')
+const cancelThreadBtn = document.getElementById('cancelThread')
+const submitThreadBtn = document.getElementById('submitThread')
+const threadsGrid = document.getElementById('threadsGrid')
+const statusMsg = document.getElementById('statusMsg')
+const modal = document.getElementById('modal')
+const modalTitle = document.getElementById('modalTitle')
+const modalContent = document.getElementById('modalContent')
+const modalMeta = document.getElementById('modalMeta')
+const modalFile = document.getElementById('modalFile')
+const threeDotBtn = document.getElementById('threeDotBtn')
+const actionMenu = document.getElementById('actionMenu')
+const actionEdit = document.getElementById('actionEdit')
+const actionDelete = document.getElementById('actionDelete')
+const editArea = document.getElementById('editArea')
+const editTextarea = document.getElementById('editTextarea')
+const cancelEdit = document.getElementById('cancelEdit')
+const saveEdit = document.getElementById('saveEdit')
+
+let currentUser = null
+let currentThread = null
+
+/* Sidebar toggle */
+menuBtn.addEventListener('click', ()=>{ sidebar.classList.toggle('show'); overlay.classList.toggle('show') })
+overlay.addEventListener('click', ()=>{ sidebar.classList.remove('show'); overlay.classList.remove('show') })
+logoutBtn.addEventListener('click', ()=>{ clearCookie('user'); location.href='index.html' })
+
+/* Thread form toggle */
+makeThreadBtn.addEventListener('click', ()=>{ threadForm.classList.toggle('open'); threadForm.setAttribute('aria-hidden', threadForm.classList.contains('open')? 'false':'true') })
+cancelThreadBtn.addEventListener('click', ()=>{ threadForm.classList.remove('open'); threadForm.setAttribute('aria-hidden','true') })
+
+/* Modal close by clicking overlay (outside box) */
+modal.addEventListener('click', (e)=>{ if(e.target===modal){ closeModal() } })
+
+/* small UI message */
+function showStatus(t){ statusMsg.textContent = t; setTimeout(()=>{ statusMsg.textContent = '' }, 3500) }
+
+/* load user */
+document.addEventListener('DOMContentLoaded', async ()=>{
+  const user = getCookie('user')
+  if(!user || !user.username) return location.href='index.html'
+  currentUser = user.username
+  uname2.textContent = currentUser
+  await loadThreads()
+})
+
+/* load threads from supabase */
+async function loadThreads(){
+  threadsGrid.innerHTML = '<div style="grid-column:1/-1">Loading...</div>'
+  try{
+    const { data, error } = await supabase.from('threads').select('*').order('created_at', { ascending: false })
+    if(error) throw error
+    threadsGrid.innerHTML = ''
+    if(!data || data.length === 0){ threadsGrid.innerHTML = '<div style="grid-column:1/-1">No threads yet.</div>'; return }
+    data.forEach(t => {
+      const card = document.createElement('div'); card.className='thread-card'; card.tabIndex = 0
+      const h = document.createElement('h3'); h.textContent = t.title || '(no title)'
+      const meta = document.createElement('div'); meta.className='thread-meta'; meta.textContent = `${t.username} • ${new Date(t.created_at).toLocaleString()}`
+      card.appendChild(h); card.appendChild(meta)
+      card.addEventListener('click', ()=> openThread(t))
+      card.addEventListener('keydown', e => { if(e.key==='Enter') openThread(t) })
+      threadsGrid.appendChild(card)
+    })
+  }catch(err){
+    console.error(err); threadsGrid.innerHTML = '<div style="grid-column:1/-1">Failed to load threads.</div>'
+  }
 }
 
-document.addEventListener('DOMContentLoaded', async ()=>{
-
-  const user = getCookie('user')
-  if(!user || !user.username) return location.href = 'index.html'
-  const username = user.username
-  document.getElementById('uname2').textContent = username
-
-  const sidebar = document.getElementById('sidebar')
-  const overlay = document.getElementById('overlay')
-  const menuBtn = document.getElementById('menuBtn')
-  menuBtn.addEventListener('click', ()=> { sidebar.classList.toggle('show'); overlay.classList.toggle('show') })
-  overlay.addEventListener('click', ()=> { sidebar.classList.remove('show'); overlay.classList.remove('show') })
-  document.getElementById('logout').addEventListener('click', ()=> { clearCookie('user'); location.href='index.html' })
-
-  const makeThreadBtn = document.getElementById('makeThread')
-  const threadForm = document.getElementById('threadForm')
-  const threadsContainer = document.getElementById('threadsContainer')
-  const welcomeBox = document.querySelector('.welcome-box')
-
-  makeThreadBtn.addEventListener('click', (e)=>{
-    e.preventDefault()
-    threadForm.classList.toggle('open')
-    threadForm.setAttribute('aria-hidden', threadForm.classList.contains('open') ? 'false' : 'true')
-    if(threadForm.classList.contains('open')) document.getElementById('threadTitle').focus()
-  })
-
-  async function loadThreads(){
-    try{
-      threadsContainer.innerHTML = '<div>Loading...</div>'
-      const params = new URLSearchParams(window.location.search)
-      const threadId = params.get('thread')
-      // build query - if threadId present, filter by it
-      let builder = supabase.from('threads').select('*')
-      if(threadId) builder = builder.eq('id', threadId)
-      builder = builder.order('created_at', { ascending: false })
-      const { data, error } = await builder
-      if(error) throw error
-      threadsContainer.innerHTML = ''
-      if(!data || data.length === 0){
-        threadsContainer.innerHTML = '<div>No threads yet.</div>'
-        return
-      }
-      data.forEach(t=>{
-        const div = document.createElement('div')
-        div.className = 'thread-box'
-        // safe text injection using textContent for parts, build nodes explicitly
-        const titleLink = document.createElement('a')
-        titleLink.href = `/leaks.html?thread=${t.id}`
-        titleLink.style.color = 'var(--fg)'
-        titleLink.style.textDecoration = 'none'
-        const strong = document.createElement('strong'); strong.textContent = t.title || '(untitled)'
-        titleLink.appendChild(strong)
-
-        const meta = document.createElement('div'); meta.innerHTML = `<em>${escapeTxt(t.username)} @ ${new Date(t.created_at).toLocaleString()}</em>`
-        const contentP = document.createElement('p'); contentP.textContent = t.content || ''
-        div.appendChild(titleLink); div.appendChild(meta); div.appendChild(contentP)
-        if(t.file) { const f = document.createElement('p'); f.textContent = 'File: ' + t.file; div.appendChild(f) }
-
-        // actions for owner
-        if(username === t.username){
-          const actions = document.createElement('div'); actions.className='thread-actions'
-          const editBtn = document.createElement('button'); editBtn.type='button'; editBtn.textContent='Edit'
-          const delBtn = document.createElement('button'); delBtn.type='button'; delBtn.textContent='Delete'
-          actions.appendChild(editBtn); actions.appendChild(delBtn)
-          div.appendChild(actions)
-
-          editBtn.addEventListener('click', ()=> openEdit(div, t))
-          delBtn.addEventListener('click', ()=> openDelete(div, t.id))
-        }
-
-        threadsContainer.appendChild(div)
-      })
-    }catch(err){
-      threadsContainer.innerHTML = ''
-      console.error(err)
-      showMsg(welcomeBox, 'Failed to load threads')
-    }
+/* open a thread: show modal with title, content, file (download) and owner actions */
+function openThread(thread){
+  currentThread = thread
+  modalTitle.textContent = thread.title || '(no title)'
+  modalMeta.textContent = `${thread.username} • ${new Date(thread.created_at).toLocaleString()}`
+  modalContent.innerHTML = ''
+  const p = document.createElement('div'); p.textContent = thread.content || ''
+  modalContent.appendChild(p)
+  modalFile.innerHTML = ''
+  if(thread.file){
+    // user files assumed to be served from /uploads/<filename>; adjust if your storage differs
+    const a = document.createElement('a'); a.className='file-link'; a.href = `/uploads/${encodeURIComponent(thread.file)}`; a.download = thread.file; a.textContent = 'Download file'
+    modalFile.appendChild(a)
   }
-
-  function openDelete(threadDiv, threadId){
-    // if already open, do nothing
-    if(threadDiv.querySelector('.delete-popup')) return
-    const popup = document.createElement('div'); popup.className='delete-popup'
-    popup.innerHTML = `<div>Are you sure?</div><div style="display:flex;gap:8px;justify-content:center;margin-top:8px">
-      <button type="button" class="yes">Yes</button>
-      <button type="button" class="no">No</button>
-    </div>`
-    threadDiv.appendChild(popup)
-    popup.style.display = 'flex'
-    popup.querySelector('.no').addEventListener('click', ()=> { popup.remove() })
-    popup.querySelector('.yes').addEventListener('click', async ()=>{
-      try{
-        const { error } = await supabase.from('threads').delete().eq('id', threadId)
-        if(error) throw error
-        popup.remove()
-        showMsg(welcomeBox, 'Thread deleted', 2500)
-        loadThreads()
-      }catch(e){
-        console.error(e); showMsg(welcomeBox, 'Delete failed')
-      }
-    })
+  // show/hide three-dot based on ownership
+  if(thread.username === currentUser){
+    threeDotBtn.style.display = 'inline-block'
+  }else{
+    threeDotBtn.style.display = 'none'; actionMenu.classList.remove('show')
   }
+  editArea.style.display = 'none'
+  modal.classList.add('show'); modal.setAttribute('aria-hidden','false')
+}
 
-  function openEdit(threadDiv, thread){
-    // close any existing edit inside this div
-    let form = threadDiv.querySelector('.edit-form')
-    if(form){ form.style.display = 'flex'; return }
-    form = document.createElement('div'); form.className='edit-form'; form.style.display='flex'; form.style.flexDirection='column'; form.style.gap='8px'; form.style.marginTop='8px'
-    const ta = document.createElement('textarea'); ta.rows = 4; ta.value = thread.content || ''
-    const saveBtn = document.createElement('button'); saveBtn.type='button'; saveBtn.textContent='Save'
-    form.appendChild(ta); form.appendChild(saveBtn)
-    threadDiv.appendChild(form)
-    saveBtn.addEventListener('click', async ()=>{
-      const newContent = ta.value.trim()
-      if(!newContent){ showMsg(welcomeBox,'Content cannot be empty'); return }
-      try{
-        const { error } = await supabase.from('threads').update({ content: newContent }).eq('id', thread.id)
-        if(error) throw error
-        showMsg(welcomeBox,'Saved',2000)
-        loadThreads()
-      }catch(e){
-        console.error(e); showMsg(welcomeBox,'Save failed')
-      }
-    })
-  }
+/* close modal */
+function closeModal(){
+  currentThread = null
+  modal.classList.remove('show'); modal.setAttribute('aria-hidden','true')
+  actionMenu.classList.remove('show')
+  editArea.style.display = 'none'
+}
 
-  document.getElementById('submitThread').addEventListener('click', async (e)=>{
-    e.preventDefault()
-    const title = document.getElementById('threadTitle').value.trim()
-    const content = document.getElementById('threadContent').value.trim()
-    const fileName = document.getElementById('threadFile').files[0]?.name || ''
-    if(!title || !content){ alert('Title and content required'); return }
-    try{
-      const { error } = await supabase.from('threads').insert([{ username, title, content, file: fileName, created_at: new Date().toISOString() }])
-      if(error) throw error
-      document.getElementById('threadTitle').value=''; document.getElementById('threadContent').value=''; document.getElementById('threadFile').value=''
-      threadForm.classList.remove('open'); threadForm.setAttribute('aria-hidden','true')
-      showMsg(welcomeBox, 'Thread posted', 2500)
-      loadThreads()
-    }catch(err){
-      console.error(err); showMsg(welcomeBox,'Post failed')
-    }
-  })
-
-  // initial load
-  loadThreads()
+/* three-dot toggle */
+threeDotBtn.addEventListener('click', (e)=>{
+  e.stopPropagation()
+  actionMenu.classList.toggle('show')
 })
+
+/* click outside action menu to close */
+document.addEventListener('click', (e)=>{
+  if(!actionMenu.contains(e.target) && e.target !== threeDotBtn) actionMenu.classList.remove('show')
+})
+
+/* Edit flow */
+actionEdit.addEventListener('click', ()=>{
+  actionMenu.classList.remove('show')
+  if(!currentThread) return
+  editTextarea.value = currentThread.content || ''
+  editArea.style.display = 'block'
+})
+
+cancelEdit.addEventListener('click', ()=>{ editArea.style.display='none' })
+
+saveEdit.addEventListener('click', async ()=>{
+  const newContent = editTextarea.value.trim()
+  if(!newContent){ showStatus('Content cannot be empty'); return }
+  try{
+    const { error } = await supabase.from('threads').update({ content: newContent }).eq('id', currentThread.id)
+    if(error) throw error
+    showStatus('Saved')
+    editArea.style.display = 'none'
+    await loadThreads()
+    // reopen updated thread details
+    const { data } = await supabase.from('threads').select('*').eq('id', currentThread.id).single()
+    if(data) openThread(data)
+  }catch(err){ console.error(err); showStatus('Save failed') }
+})
+
+/* Delete flow */
+actionDelete.addEventListener('click', async ()=>{
+  actionMenu.classList.remove('show')
+  if(!currentThread) return
+  if(!confirm('Delete this thread?')) return
+  try{
+    const { error } = await supabase.from('threads').delete().eq('id', currentThread.id)
+    if(error) throw error
+    showStatus('Deleted')
+    closeModal()
+    await loadThreads()
+  }catch(err){ console.error(err); showStatus('Delete failed') }
+})
+
+/* Create thread: posts to supabase; file upload is NOT implemented to storage — it uses filename only.
+   If you want to store actual files in Supabase Storage, tell me and i'll add that next. */
+submitThreadBtn.addEventListener('click', async ()=>{
+  const title = document.getElementById('threadTitle').value.trim()
+  const content = document.getElementById('threadContent').value.trim()
+  const fileInput = document.getElementById('threadFile')
+  const fileName = fileInput.files[0]?.name || ''
+  if(!title || !content){ alert('Title and content required'); return }
+  try{
+    // insert record
+    const { error } = await supabase.from('threads').insert([{ username: currentUser, title, content, file: fileName, created_at: new Date().toISOString() }])
+    if(error) throw error
+    // reset form
+    document.getElementById('threadTitle').value = ''
+    document.getElementById('threadContent').value = ''
+    fileInput.value = ''
+    threadForm.classList.remove('open'); threadForm.setAttribute('aria-hidden','true')
+    showStatus('Posted')
+    await loadThreads()
+  }catch(err){
+    console.error(err); showStatus('Post failed')
+  }
+})
+
+/* close modal on Escape */
+document.addEventListener('keydown', (e)=>{ if(e.key === 'Escape') { if(modal.classList.contains('show')) closeModal(); else { threadForm.classList.remove('open') } } })
 </script>
-</head>
-<body>
-  <div class="top">
-    <a href="/home"><img id="logo" src="assets/logo.png" alt="logo"></a>
-    <button id="menuBtn" class="menu-btn" type="button"><span></span></button>
-  </div>
-
-  <div id="sidebar" class="sidebar">
-    <div>
-      <div>Account</div>
-      <div style="margin-top:10px">Logged in as <strong id="uname2"></strong></div>
-      <div style="margin-top:12px;display:flex;flex-direction:column;gap:8px">
-        <a href="/livechat">Live Chat</a>
-        <a href="/leaks">Leaks</a>
-        <a href="/shop">Shop</a>
-      </div>
-    </div>
-    <button id="logout" type="button">Log Out</button>
-  </div>
-
-  <div id="overlay" class="overlay"></div>
-
-  <div class="content">
-    <div class="welcome-box">
-      <button id="makeThread" type="button">Make A New Thread</button>
-
-      <div id="threadForm" class="thread-form" aria-hidden="true">
-        <input id="threadTitle" placeholder="Title" />
-        <textarea id="threadContent" rows="4" placeholder="Content"></textarea>
-        <input id="threadFile" type="file" />
-        <button id="submitThread" type="button">Done</button>
-      </div>
-
-      <div class="threads-container" id="threadsContainer"></div>
-    </div>
-  </div>
-
-  <footer>
-    <a href="/contact">Contact</a> | Idawn™
-  </footer>
 </body>
 </html>
