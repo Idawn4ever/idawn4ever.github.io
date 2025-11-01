@@ -1,0 +1,324 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Leaks — Local Test</title>
+<style>
+:root{--bg:#000;--fg:#7CFC00;--muted:rgba(255,255,255,.06)}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;background:var(--bg);color:var(--fg);font-family:monospace}
+.top{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--muted)}
+#logo{height:34px}
+.menu-btn{background:transparent;border:none;color:var(--fg);cursor:pointer;padding:8px;font-size:18px}
+.sidebar{position:fixed;right:-320px;top:0;height:100%;width:320px;background:#050505;border-left:1px solid var(--muted);padding:16px;transition:right .22s;z-index:120;display:flex;flex-direction:column;justify-content:space-between}
+.sidebar.show{right:0}
+.overlay{position:fixed;inset:0;display:none;background:rgba(0,0,0,.6);z-index:110}
+.overlay.show{display:block}
+.content{padding:24px;max-width:1000px;margin:0 auto}
+.welcome-box{border:1px solid var(--muted);padding:20px;border-radius:8px;background:linear-gradient(180deg, rgba(255,255,255,0.01), transparent)}
+#makeThread{background:transparent;border:1px solid var(--fg);color:var(--fg);padding:10px 14px;border-radius:10px;cursor:pointer;font-weight:700}
+.thread-form{display:none;flex-direction:column;gap:8px;margin-top:12px}
+.thread-form.open{display:flex}
+.thread-form input[type="text"], .thread-form textarea{width:100%;padding:10px;border-radius:6px;border:1px solid var(--muted);background:#000;color:var(--fg)}
+.thread-form input[type="file"]{color:var(--fg)}
+.thread-form .btn{align-self:flex-end;padding:8px 12px;border-radius:8px;border:none;background:var(--fg);color:#000;cursor:pointer}
+.threads-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;margin-top:18px}
+.thread-card{border:1px solid var(--muted);padding:12px;border-radius:8px;cursor:pointer;background:rgba(255,255,255,0.01);position:relative;overflow:hidden}
+.thread-card h3{margin:0;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.thread-meta{font-size:12px;color:var(--muted);margin-top:8px}
+.modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.75);z-index:200;padding:20px}
+.modal.show{display:flex}
+.modal-box{width:100%;max-width:720px;background:#050505;border-radius:10px;padding:18px;border:1px solid var(--muted);position:relative;max-height:80vh;overflow:auto}
+.modal-head{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.modal-title{font-size:18px;margin:0}
+.three-dot{background:transparent;border:none;color:var(--fg);cursor:pointer;font-size:20px}
+.modal-content{margin-top:12px;border-top:1px dashed var(--muted);padding-top:12px;white-space:pre-wrap}
+.file-link{display:inline-block;margin-top:12px;padding:8px 10px;border-radius:8px;border:1px solid var(--muted);text-decoration:none;color:var(--fg);background:transparent}
+.action-menu{position:absolute;right:12px;top:42px;background:#0a0a0a;border:1px solid var(--muted);padding:6px;border-radius:6px;display:none}
+.action-menu.show{display:block}
+.action-menu button{display:block;background:transparent;border:none;color:var(--fg);padding:6px 10px;text-align:left;cursor:pointer}
+.edit-area{display:flex;flex-direction:column;gap:8px;margin-top:8px}
+.small-msg{font-size:13px;color:var(--muted);margin-top:8px}
+.footer{position:fixed;bottom:0;left:0;right:0;text-align:center;padding:8px 0;border-top:1px solid var(--muted);background:linear-gradient(180deg, transparent, rgba(0,0,0,.2))}
+</style>
+</head>
+<body>
+  <div class="top">
+    <div style="display:flex;align-items:center;gap:12px">
+      <div id="logo">🛰️</div>
+      <strong>Leaks (local test)</strong>
+    </div>
+    <div>
+      <button id="menuBtn" class="menu-btn" type="button">☰</button>
+    </div>
+  </div>
+
+  <div id="sidebar" class="sidebar" aria-hidden="true">
+    <div>
+      <div>Account</div>
+      <div style="margin-top:10px">Logged in as <strong id="uname2"></strong></div>
+      <div style="margin-top:16px;display:flex;flex-direction:column;gap:8px">
+        <a href="#" id="linkLive">Live Chat</a>
+        <a href="#" id="linkLeaks">Leaks</a>
+        <a href="#" id="linkShop">Shop</a>
+      </div>
+    </div>
+    <div style="margin-top:16px">
+      <button id="logout" class="btn" type="button" style="width:100%;padding:10px;border-radius:8px;background:var(--fg);color:#000;border:none;cursor:pointer">Log Out</button>
+    </div>
+  </div>
+
+  <div id="overlay" class="overlay"></div>
+
+  <div class="content">
+    <div class="welcome-box">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <h2 style="margin:0">Threads</h2>
+          <div class="small-msg" id="statusMsg"></div>
+        </div>
+        <div>
+          <button id="makeThread" type="button">+ New Thread</button>
+        </div>
+      </div>
+
+      <div id="threadForm" class="thread-form" aria-hidden="true">
+        <input id="threadTitle" type="text" placeholder="Title (required)" />
+        <textarea id="threadContent" rows="5" placeholder="Content (required)"></textarea>
+        <input id="threadFile" type="file" />
+        <div style="display:flex;gap:8px;justify-content:flex-end">
+          <button id="cancelThread" type="button" class="btn" style="background:transparent;border:1px solid var(--muted);color:var(--fg)">Cancel</button>
+          <button id="submitThread" type="button" class="btn">Post</button>
+        </div>
+      </div>
+
+      <div class="threads-grid" id="threadsGrid" aria-live="polite"></div>
+    </div>
+  </div>
+
+  <div id="modal" class="modal" role="dialog" aria-hidden="true">
+    <div class="modal-box" role="document">
+      <div class="modal-head">
+        <h3 id="modalTitle" class="modal-title"></h3>
+        <div style="position:relative">
+          <button id="threeDotBtn" class="three-dot" title="Actions" type="button">⋯</button>
+          <div id="actionMenu" class="action-menu" role="menu">
+            <button id="actionEdit" type="button">Edit</button>
+            <button id="actionDelete" type="button">Delete</button>
+          </div>
+        </div>
+      </div>
+      <div id="modalMeta" class="small-msg"></div>
+      <div id="modalContent" class="modal-content"></div>
+      <div id="modalFile"></div>
+
+      <div id="editArea" class="edit-area" style="display:none">
+        <textarea id="editTextarea" rows="6"></textarea>
+        <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px">
+          <button id="cancelEdit" type="button" class="btn" style="background:transparent;border:1px solid var(--muted);color:var(--fg)">Cancel</button>
+          <button id="saveEdit" type="button" class="btn">Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">Local test — changes saved in browser storage</div>
+
+<script>
+/* Local test implementation: store threads in localStorage under 'lt_threads'
+   Each thread: { id, username, title, content, fileName, fileDataURL, created_at }
+*/
+
+/* helpers */
+function getCookie(name){
+  const c = document.cookie.split('; ').find(r=>r.trim().startsWith(name+'='))
+  if(!c) return null
+  try{ return JSON.parse(decodeURIComponent(c.split('=')[1])) }catch(e){ return null }
+}
+function setCookie(name, val, days=7){
+  const v = encodeURIComponent(JSON.stringify(val))
+  document.cookie = name + '=' + v + '; path=/; max-age=' + (60*60*24*days)
+}
+function clearCookie(name){ document.cookie = name + '=; path=/; max-age=0' }
+const esc = s=> String(s||'').replaceAll('<','&lt;').replaceAll('>','&gt;')
+
+/* UI refs */
+const menuBtn = document.getElementById('menuBtn')
+const sidebar = document.getElementById('sidebar')
+const overlay = document.getElementById('overlay')
+const logoutBtn = document.getElementById('logout')
+const uname2 = document.getElementById('uname2')
+
+const makeThreadBtn = document.getElementById('makeThread')
+const threadForm = document.getElementById('threadForm')
+const cancelThreadBtn = document.getElementById('cancelThread')
+const submitThreadBtn = document.getElementById('submitThread')
+const threadsGrid = document.getElementById('threadsGrid')
+const statusMsg = document.getElementById('statusMsg')
+
+const modal = document.getElementById('modal')
+const modalTitle = document.getElementById('modalTitle')
+const modalContent = document.getElementById('modalContent')
+const modalMeta = document.getElementById('modalMeta')
+const modalFile = document.getElementById('modalFile')
+const threeDotBtn = document.getElementById('threeDotBtn')
+const actionMenu = document.getElementById('actionMenu')
+const actionEdit = document.getElementById('actionEdit')
+const actionDelete = document.getElementById('actionDelete')
+const editArea = document.getElementById('editArea')
+const editTextarea = document.getElementById('editTextarea')
+const cancelEdit = document.getElementById('cancelEdit')
+const saveEdit = document.getElementById('saveEdit')
+
+let currentUser = null
+let currentThread = null
+
+/* storage helpers */
+function loadLocalThreads(){
+  try{
+    const raw = localStorage.getItem('lt_threads')
+    return raw ? JSON.parse(raw) : []
+  }catch(e){ return [] }
+}
+function saveLocalThreads(arr){ localStorage.setItem('lt_threads', JSON.stringify(arr)) }
+function nextId(){ return 't_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2,8) }
+
+/* UI helpers */
+function showStatus(t, timeout=3000){ statusMsg.textContent = t; if(timeout) setTimeout(()=>{ statusMsg.textContent = '' }, timeout) }
+
+/* attach listeners after DOM ready */
+document.addEventListener('DOMContentLoaded', ()=>{
+
+  // set or read current user (for local testing)
+  const cookieUser = getCookie('user')
+  if(cookieUser && cookieUser.username) currentUser = cookieUser.username
+  else {
+    currentUser = 'localtester'
+    setCookie('user', { username: currentUser })
+  }
+  uname2.textContent = currentUser
+
+  // sidebar
+  menuBtn.addEventListener('click', ()=>{ sidebar.classList.toggle('show'); overlay.classList.toggle('show') })
+  overlay.addEventListener('click', ()=>{ sidebar.classList.remove('show'); overlay.classList.remove('show') })
+  logoutBtn.addEventListener('click', ()=>{ clearCookie('user'); alert('cookie cleared (local test)'); location.reload() })
+
+  // thread form toggle
+  makeThreadBtn.addEventListener('click', ()=>{ threadForm.classList.toggle('open'); threadForm.setAttribute('aria-hidden', threadForm.classList.contains('open')?'false':'true'); if(threadForm.classList.contains('open')) document.getElementById('threadTitle').focus() })
+  cancelThreadBtn.addEventListener('click', ()=>{ threadForm.classList.remove('open'); threadForm.setAttribute('aria-hidden','true') })
+
+  // modal behavior
+  modal.addEventListener('click', (e)=>{ if(e.target === modal) closeModal() })
+  threeDotBtn.addEventListener('click', (e)=>{ e.stopPropagation(); actionMenu.classList.toggle('show') })
+  document.addEventListener('click', (e)=>{ if(!actionMenu.contains(e.target) && e.target !== threeDotBtn) actionMenu.classList.remove('show') })
+
+  actionEdit.addEventListener('click', ()=>{ actionMenu.classList.remove('show'); if(!currentThread) return; editTextarea.value = currentThread.content || ''; editArea.style.display = 'block' })
+  cancelEdit.addEventListener('click', ()=>{ editArea.style.display = 'none' })
+  saveEdit.addEventListener('click', ()=>{ 
+    const newContent = editTextarea.value.trim()
+    if(!newContent){ showStatus('Content cannot be empty'); return }
+    const arr = loadLocalThreads()
+    const idx = arr.findIndex(x=>x.id === currentThread.id)
+    if(idx === -1){ showStatus('Thread not found'); return }
+    arr[idx].content = newContent
+    saveLocalThreads(arr)
+    showStatus('Saved')
+    editArea.style.display = 'none'
+    renderThreads()
+    // reopen updated thread
+    const updated = arr[idx]
+    openThread(updated)
+  })
+
+  actionDelete.addEventListener('click', ()=>{
+    actionMenu.classList.remove('show')
+    if(!currentThread) return
+    if(!confirm('Delete this thread?')) return
+    const arr = loadLocalThreads().filter(x=>x.id !== currentThread.id)
+    saveLocalThreads(arr)
+    showStatus('Deleted')
+    closeModal()
+    renderThreads()
+  })
+
+  // submit new thread: read file if provided and save dataURL
+  submitThreadBtn.addEventListener('click', async ()=>{
+    const title = document.getElementById('threadTitle').value.trim()
+    const content = document.getElementById('threadContent').value.trim()
+    const fileInput = document.getElementById('threadFile')
+    if(!title || !content){ alert('Title and content required'); return }
+    let fileDataURL = ''
+    let fileName = ''
+    if(fileInput.files[0]){
+      fileName = fileInput.files[0].name
+      fileDataURL = await readFileAsDataURL(fileInput.files[0])
+    }
+    const arr = loadLocalThreads()
+    const thread = { id: nextId(), username: currentUser, title, content, fileName, fileDataURL, created_at: new Date().toISOString() }
+    arr.unshift(thread)
+    saveLocalThreads(arr)
+    document.getElementById('threadTitle').value = ''
+    document.getElementById('threadContent').value = ''
+    fileInput.value = ''
+    threadForm.classList.remove('open'); threadForm.setAttribute('aria-hidden','true')
+    showStatus('Posted')
+    renderThreads()
+  })
+
+  // keyboard escape
+  document.addEventListener('keydown', (e)=>{ if(e.key === 'Escape'){ if(modal.classList.contains('show')) closeModal(); else threadForm.classList.remove('open') } })
+
+  // initial render
+  renderThreads()
+})
+
+/* helper to read file into dataURL */
+function readFileAsDataURL(file){
+  return new Promise((res,rej)=>{
+    const fr = new FileReader()
+    fr.onload = ()=> res(fr.result)
+    fr.onerror = ()=> rej(fr.error)
+    fr.readAsDataURL(file)
+  })
+}
+
+/* render thread cards */
+function renderThreads(){
+  const arr = loadLocalThreads()
+  threadsGrid.innerHTML = ''
+  if(arr.length === 0){ threadsGrid.innerHTML = '<div style="grid-column:1/-1">No threads yet.</div>'; return }
+  arr.forEach(t=>{
+    const card = document.createElement('div'); card.className='thread-card'; card.tabIndex=0
+    const h = document.createElement('h3'); h.textContent = t.title || '(no title)'
+    const meta = document.createElement('div'); meta.className='thread-meta'; meta.textContent = `${t.username} • ${new Date(t.created_at).toLocaleString()}`
+    card.appendChild(h); card.appendChild(meta)
+    card.addEventListener('click', ()=> openThread(t))
+    card.addEventListener('keydown', e=>{ if(e.key === 'Enter') openThread(t) })
+    threadsGrid.appendChild(card)
+  })
+}
+
+/* open thread modal with download link if file saved */
+function openThread(thread){
+  currentThread = thread
+  modalTitle.textContent = thread.title || '(no title)'
+  modalMeta.textContent = `${thread.username} • ${new Date(thread.created_at).toLocaleString()}`
+  modalContent.textContent = thread.content || ''
+  modalFile.innerHTML = ''
+  if(thread.fileName && thread.fileDataURL){
+    const a = document.createElement('a'); a.className='file-link'; a.href = thread.fileDataURL; a.download = thread.fileName; a.textContent = 'Download file'
+    modalFile.appendChild(a)
+  }
+  if(thread.username === currentUser) threeDotBtn.style.display = 'inline-block'
+  else { threeDotBtn.style.display = 'none'; actionMenu.classList.remove('show') }
+  editArea.style.display = 'none'
+  modal.classList.add('show'); modal.setAttribute('aria-hidden','false')
+}
+
+/* close modal */
+function closeModal(){ currentThread = null; modal.classList.remove('show'); modal.setAttribute('aria-hidden','true'); actionMenu.classList.remove('show'); editArea.style.display='none' }
+
+</script>
+</body>
+</html>
