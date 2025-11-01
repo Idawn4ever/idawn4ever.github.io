@@ -53,7 +53,6 @@ footer{position:fixed;bottom:0;left:0;right:0;text-align:center;padding:8px 0;bo
     <button id="menuBtn" class="menu-btn" type="button">☰</button>
   </div>
 </div>
-
 <div id="sidebar" class="sidebar" aria-hidden="true">
   <div>
     <div>Account</div>
@@ -68,9 +67,7 @@ footer{position:fixed;bottom:0;left:0;right:0;text-align:center;padding:8px 0;bo
     <button id="logout" class="btn" type="button" style="width:100%;padding:10px;border-radius:8px;background:var(--fg);color:#000;border:none;cursor:pointer">Log Out</button>
   </div>
 </div>
-
 <div id="overlay" class="overlay"></div>
-
 <div class="content">
   <div class="welcome-box">
     <div style="display:flex;justify-content:space-between;align-items:center">
@@ -82,7 +79,6 @@ footer{position:fixed;bottom:0;left:0;right:0;text-align:center;padding:8px 0;bo
         <button id="makeThread" type="button">+ New Thread</button>
       </div>
     </div>
-
     <div id="threadForm" class="thread-form" aria-hidden="true" style="margin-top:12px">
       <input id="threadTitle" type="text" placeholder="Title (required)" />
       <textarea id="threadContent" rows="5" placeholder="Content (required)"></textarea>
@@ -92,12 +88,9 @@ footer{position:fixed;bottom:0;left:0;right:0;text-align:center;padding:8px 0;bo
         <button id="submitThread" type="button" class="btn">Post</button>
       </div>
     </div>
-
     <div class="threads-grid" id="threadsGrid" aria-live="polite"></div>
   </div>
 </div>
-
-<!-- modal -->
 <div id="modal" class="modal" role="dialog" aria-hidden="true">
   <div class="modal-box" role="document">
     <div class="modal-head">
@@ -113,7 +106,6 @@ footer{position:fixed;bottom:0;left:0;right:0;text-align:center;padding:8px 0;bo
     <div id="modalMeta" class="small-msg"></div>
     <div id="modalContent" class="modal-content"></div>
     <div id="modalFile"></div>
-
     <div id="editArea" class="edit-area" style="display:none">
       <textarea id="editTextarea" rows="6"></textarea>
       <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px">
@@ -123,214 +115,20 @@ footer{position:fixed;bottom:0;left:0;right:0;text-align:center;padding:8px 0;bo
     </div>
   </div>
 </div>
-
 <footer>
   <a href="/contact">Contact</a> | Idawn™
 </footer>
-
-<!-- Supabase UMD -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-
 <script>
-/* --- CONFIG (kept the values you previously used) --- */
-const SUPABASE_URL = 'https://thdzrkzdkdihjximoalb.supabase.co'
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRoZHpya3pka2RpaGp4aW1vYWxiIiwicm9lIjoiYW5vbiIsImlhdCI6MTc2MDI0OTM3MiwiZXhwIjoyMDc1ODI1MzcyfQ.uHpGricbNHVWsndClTd8K7LVRTCzWLF0ziwuGKvOSTw'
-const BUCKET = 'thread_files'  // your bucket
-
-const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
-
-/* helpers */
-function getCookie(name){
-  const c = document.cookie.split('; ').find(r=>r.startsWith(name+'='))
-  if(!c) return null
-  try{ return JSON.parse(decodeURIComponent(c.split('=')[1])) }catch(e){ return null }
-}
-function clearCookie(name){ document.cookie = name + '=; path=/; max-age=0' }
-const esc = s => String(s||'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;')
-function showStatus(t, timeout=3000){ const el = document.getElementById('statusMsg'); el.textContent = t; if(timeout) setTimeout(()=>{ el.textContent = '' }, timeout) }
-
-/* UI refs */
-const menuBtn = document.getElementById('menuBtn')
-const sidebar = document.getElementById('sidebar')
-const overlay = document.getElementById('overlay')
-const logoutBtn = document.getElementById('logout')
-const uname2 = document.getElementById('uname2')
-
-const makeThreadBtn = document.getElementById('makeThread')
-const threadForm = document.getElementById('threadForm')
-const cancelThreadBtn = document.getElementById('cancelThread')
-const submitThreadBtn = document.getElementById('submitThread')
-const threadsGrid = document.getElementById('threadsGrid')
-
-const modal = document.getElementById('modal')
-const modalTitle = document.getElementById('modalTitle')
-const modalContent = document.getElementById('modalContent')
-const modalMeta = document.getElementById('modalMeta')
-const modalFile = document.getElementById('modalFile')
-const threeDotBtn = document.getElementById('threeDotBtn')
-const actionMenu = document.getElementById('actionMenu')
-const actionEdit = document.getElementById('actionEdit')
-const actionDelete = document.getElementById('actionDelete')
-const editArea = document.getElementById('editArea')
-const editTextarea = document.getElementById('editTextarea')
-const cancelEdit = document.getElementById('cancelEdit')
-const saveEdit = document.getElementById('saveEdit')
-
-let currentUser = null
-let currentThread = null
-
-/* attach listeners */
-document.addEventListener('DOMContentLoaded', async () => {
-  try{
-    const user = getCookie('user')
-    if(!user || !user.username) return location.href = 'index.html'
-    currentUser = user.username
-    uname2.textContent = currentUser
-
-    // sidebar
-    menuBtn.addEventListener('click', ()=>{ sidebar.classList.toggle('show'); overlay.classList.toggle('show') })
-    overlay.addEventListener('click', ()=>{ sidebar.classList.remove('show'); overlay.classList.remove('show') })
-    logoutBtn.addEventListener('click', ()=>{ clearCookie('user'); location.href='index.html' })
-
-    // form toggle
-    makeThreadBtn.addEventListener('click', ()=>{ threadForm.classList.toggle('open'); threadForm.setAttribute('aria-hidden', threadForm.classList.contains('open') ? 'false' : 'true'); if(threadForm.classList.contains('open')) document.getElementById('threadTitle').focus() })
-    cancelThreadBtn.addEventListener('click', ()=>{ threadForm.classList.remove('open'); threadForm.setAttribute('aria-hidden','true') })
-
-    // modal & actions
-    modal.addEventListener('click', (e)=>{ if(e.target === modal) closeModal() })
-    threeDotBtn.addEventListener('click', (e)=>{ e.stopPropagation(); actionMenu.classList.toggle('show') })
-    document.addEventListener('click', (e)=>{ if(!actionMenu.contains(e.target) && e.target !== threeDotBtn) actionMenu.classList.remove('show') })
-
-    actionEdit.addEventListener('click', ()=>{ actionMenu.classList.remove('show'); if(!currentThread) return; editTextarea.value = currentThread.content || ''; editArea.style.display = 'block' })
-    cancelEdit.addEventListener('click', ()=>{ editArea.style.display = 'none' })
-    saveEdit.addEventListener('click', async ()=>{
-      const newContent = editTextarea.value.trim()
-      if(!newContent){ showStatus('Content cannot be empty'); return }
-      try{
-        const { error } = await supabase.from('threads').update({ content: newContent }).eq('id', currentThread.id)
-        if(error) throw error
-        showStatus('Saved')
-        editArea.style.display = 'none'
-        await loadThreads()
-        const { data } = await supabase.from('threads').select('*').eq('id', currentThread.id).single()
-        if(data) openThread(data)
-      }catch(err){ console.error(err); showStatus('Save failed') }
-    })
-
-    actionDelete.addEventListener('click', async ()=>{
-      actionMenu.classList.remove('show')
-      if(!currentThread) return
-      if(!confirm('Delete this thread?')) return
-      try{
-        const { error } = await supabase.from('threads').delete().eq('id', currentThread.id)
-        if(error) throw error
-        showStatus('Deleted')
-        closeModal()
-        await loadThreads()
-      }catch(err){ console.error(err); showStatus('Delete failed') }
-    })
-
-    // create thread with file upload to Storage
-    submitThreadBtn.addEventListener('click', async ()=>{
-      const title = document.getElementById('threadTitle').value.trim()
-      const content = document.getElementById('threadContent').value.trim()
-      const fileInput = document.getElementById('threadFile')
-      if(!title || !content){ alert('Title and content required'); return }
-      try{
-        let file_path = null
-        let file_url = null
-        const file = fileInput.files[0]
-        if(file){
-          // build a unique path: username/timestamp_filename
-          const safeName = file.name.replaceAll(/\s+/g, '_')
-          const path = `${currentUser}/${Date.now()}_${safeName}`
-          const { data: uploadData, error: uploadErr } = await supabase.storage.from(BUCKET).upload(path, file)
-          if(uploadErr){
-            console.error('uploadErr', uploadErr)
-            showStatus('File upload failed')
-            return
-          }
-          file_path = uploadData.path || path
-          const { data: urlData } = supabase.storage.from(BUCKET).getPublicUrl(file_path)
-          file_url = urlData?.publicUrl || null
-        }
-
-        const payload = { username: currentUser, title, content, file_path, file_url, created_at: new Date().toISOString() }
-        const { error } = await supabase.from('threads').insert([payload])
-        if(error) throw error
-
-        // reset
-        document.getElementById('threadTitle').value = ''
-        document.getElementById('threadContent').value = ''
-        fileInput.value = ''
-        threadForm.classList.remove('open'); threadForm.setAttribute('aria-hidden','true')
-        showStatus('Posted')
-        await loadThreads()
-      }catch(err){
-        console.error('post err', err)
-        showStatus('Post failed')
-      }
-    })
-
-    // keyboard escape
-    document.addEventListener('keydown', (e)=>{ if(e.key === 'Escape'){ if(modal.classList.contains('show')) closeModal(); else threadForm.classList.remove('open') } })
-
-    // initial load
-    await loadThreads()
-  }catch(err){
-    console.error('init err', err)
-    alert('Initialization error — check console')
-  }
-})
-
-/* load threads */
-async function loadThreads(){
-  threadsGrid.innerHTML = '<div style="grid-column:1/-1">Loading...</div>'
-  try{
-    const { data, error } = await supabase.from('threads').select('*').order('created_at', { ascending: false })
-    if(error) throw error
-    threadsGrid.innerHTML = ''
-    if(!data || data.length === 0){ threadsGrid.innerHTML = '<div style="grid-column:1/-1">No threads yet.</div>'; return }
-    data.forEach(t => {
-      const card = document.createElement('div'); card.className = 'thread-card'; card.tabIndex = 0
-      const h = document.createElement('h3'); h.textContent = t.title || '(no title)'
-      const meta = document.createElement('div'); meta.className = 'thread-meta'; meta.textContent = `${t.username} • ${new Date(t.created_at).toLocaleString()}`
-      card.appendChild(h); card.appendChild(meta)
-      card.addEventListener('click', ()=> openThread(t))
-      card.addEventListener('keydown', e => { if(e.key === 'Enter') openThread(t) })
-      threadsGrid.appendChild(card)
-    })
-  }catch(err){
-    console.error('loadThreads err', err)
-    threadsGrid.innerHTML = '<div style="grid-column:1/-1">Failed to load threads.</div>'
-  }
-}
-
-/* open thread modal */
-function openThread(thread){
-  currentThread = thread
-  modalTitle.textContent = thread.title || '(no title)'
-  modalMeta.textContent = `${thread.username} • ${new Date(thread.created_at).toLocaleString()}`
-  modalContent.textContent = thread.content || ''
-  modalFile.innerHTML = ''
-  if(thread.file_url){
-    const a = document.createElement('a'); a.className = 'file-link'; a.href = thread.file_url; a.target='_blank'; a.rel='noopener'; a.download = thread.file_path?.split('/').pop() || ''
-    a.textContent = 'Download file'
-    modalFile.appendChild(a)
-  }
-  if(thread.username === currentUser) threeDotBtn.style.display = 'inline-block'
-  else { threeDotBtn.style.display = 'none'; actionMenu.classList.remove('show') }
-  editArea.style.display = 'none'
-  modal.classList.add('show'); modal.setAttribute('aria-hidden','false')
-}
-
-/* close modal */
-function closeModal(){
-  currentThread = null
-  modal.classList.remove('show'); modal.setAttribute('aria-hidden','true')
-  actionMenu.classList.remove('show')
-  editArea.style.display = 'none'
-}
+const SUPABASE_URL='https://thdzrkzdkdihjximoalb.supabase.co'
+const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRoZHpya3pka2RpaGp4aW1vYWxiIiwicm9lIjoiYW5vbiIsImlhdCI6MTc2MDI0OTM3MiwiZXhwIjoyMDc1ODI1MzcyfQ.uHpGricbNHVWsndClTd8K7LVRTCzWLF0ziwuGKvOSTw'
+const BUCKET='thread_files'
+const supabase=supabase.createClient(SUPABASE_URL,SUPABASE_KEY)
+function getCookie(n){const c=document.cookie.split('; ').find(r=>r.startsWith(n+'='));if(!c)return null;try{return JSON.parse(decodeURIComponent(c.split('=')[1]))}catch(e){return null}}
+function clearCookie(n){document.cookie=n+'=; path=/; max-age=0'}
+const esc=s=>String(s||'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;')
+function showStatus(t,timeout=3000){const el=document.getElementById('statusMsg');el.textContent=t;if(timeout)setTimeout(()=>{el.textContent=''},timeout)}
 </script>
+<script src="/js/leaks-app.js"></script>
 </body>
 </html>
