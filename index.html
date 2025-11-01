@@ -24,24 +24,43 @@ function setCookie(name,value,days){
   document.cookie = name + '=' + encodeURIComponent(value) + '; path=/' + max
 }
 
+let failCount = 0
+let cooldown = false
+
+async function handleLogin(e){
+  e.preventDefault()
+  if(cooldown){
+    alert("Please wait before trying again.")
+    return
+  }
+  const username = document.getElementById('username').value.trim()
+  const password = document.getElementById('password').value
+  if(!username || !password) return alert('enter username & password')
+  const { data, error } = await supabase
+    .from('users')
+    .select('id,username')
+    .eq('username', username)
+    .eq('password', password)
+    .maybeSingle()
+  if(error || !data){
+    failCount++
+    if(failCount >= 5){
+      alert("Please try again later")
+      cooldown = true
+      let delay = failCount > 5 ? 15000 : 10000
+      setTimeout(()=>cooldown=false, delay)
+    } else {
+      alert('invalid username or password')
+    }
+    return
+  }
+  setCookie('user', JSON.stringify({ id: data.id, username: data.username }), 7)
+  location.href = '/home'
+}
+
 document.addEventListener('DOMContentLoaded', ()=>{
   if(document.cookie.split('; ').some(c=>c.startsWith('user='))) return location.href='home.html'
-  const form = document.getElementById('loginForm')
-  form.addEventListener('submit', async (e)=>{
-    e.preventDefault()
-    const username = document.getElementById('username').value.trim()
-    const password = document.getElementById('password').value
-    if(!username || !password) return alert('enter username & password')
-    const { data, error } = await supabase
-      .from('users')
-      .select('id,username')
-      .eq('username', username)
-      .eq('password', password)
-      .maybeSingle()
-    if(error || !data) return alert('invalid username or password')
-    setCookie('user', JSON.stringify({ id: data.id, username: data.username }), 7)
-    location.href = '/home'
-  })
+  document.getElementById('loginForm').addEventListener('submit', handleLogin)
 })
 </script>
 </head>
