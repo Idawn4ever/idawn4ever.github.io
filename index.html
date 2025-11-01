@@ -11,8 +11,8 @@
   input{width:90%;padding:8px;margin:8px 0;background:#111;border:1px solid var(--fg);color:var(--fg)}
   button{padding:8px 16px;background:var(--fg);color:#000;border:none;cursor:pointer}
   a{color:var(--fg);text-decoration:none}
-  .note{opacity:.9;font-size:13px;transition:.3s}
-  .error{color:#ff4444;opacity:1;font-weight:bold}
+  .error{color:#ff4444;font-size:13px;font-weight:bold;opacity:1;transition:.3s}
+  .hidden{opacity:0}
   footer{padding:10px 16px;border-top:1px solid rgba(255,255,255,0.05);display:flex;justify-content:space-between;font-size:13px;opacity:.8;position:fixed;bottom:0;width:100%}
   footer a{color:var(--fg);text-decoration:none}
 </style>
@@ -27,20 +27,26 @@ function setCookie(name,value,days){
 
 let failCount = 0
 let cooldown = false
+let timeoutId = null
+
+function showError(msg){
+  const err = document.querySelector('.error')
+  err.textContent = msg
+  err.classList.remove('hidden')
+  clearTimeout(timeoutId)
+  timeoutId = setTimeout(()=>err.classList.add('hidden'), 5000)
+}
 
 async function handleLogin(e){
   e.preventDefault()
-  const note = document.querySelector('.note')
   if(cooldown){
-    note.textContent = "Please wait before trying again."
-    note.classList.add('error')
+    showError("Please wait before trying again.")
     return
   }
   const username = document.getElementById('username').value.trim()
   const password = document.getElementById('password').value
   if(!username || !password){
-    note.textContent = "Enter username & password"
-    note.classList.add('error')
+    showError("Enter username & password")
     return
   }
   const { data, error } = await supabase
@@ -51,14 +57,13 @@ async function handleLogin(e){
     .maybeSingle()
   if(error || !data){
     failCount++
-    note.classList.add('error')
     if(failCount >= 5){
-      note.textContent = "Please try again later"
+      showError("Please try again later")
       cooldown = true
       let delay = failCount > 5 ? 15000 : 10000
       setTimeout(()=>cooldown=false, delay)
     } else {
-      note.textContent = "Invalid username or password"
+      showError("Invalid username or password")
     }
     return
   }
@@ -80,7 +85,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
       <input id="password" type="password" placeholder="Password" required><br>
       <button type="submit">Login</button>
     </form>
-    <p class="note">Login To Continue</p>
+    <p class="error hidden"></p>
     <p>No Account? <a href="/signup">Sign Up</a></p>
   </div>
   <footer>
