@@ -8,6 +8,7 @@
   :root{--bg:#000;--fg:lime;}
   html,body{height:100%;margin:0;background:var(--bg);color:var(--fg);font-family:monospace}
   .wrap{max-width:420px;margin:80px auto;text-align:center}
+  .logo{width:140px;height:auto;margin-bottom:20px}
   input{width:90%;padding:8px;margin:8px 0;background:#111;border:1px solid var(--fg);color:var(--fg)}
   button{padding:8px 16px;background:var(--fg);color:#000;border:none;cursor:pointer}
   a{color:var(--fg);text-decoration:none}
@@ -79,6 +80,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
 </head>
 <body>
   <div class="wrap">
+    <img src="/assets/logo.png" alt="Logo" class="logo">
     <h2>Login</h2>
     <form id="loginForm">
       <input id="username" type="text" placeholder="Username" required><br>
