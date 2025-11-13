@@ -1,0 +1,201 @@
+<!doctype html>
+
+<html>
+<head>
+<meta charset="utf-8">
+<title>Admin Panel</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+:root { --bg:#000; --fg:lime; --box:#080808; }
+html,body{margin:0;height:100%;background:var(--bg);color:var(--fg);font-family:monospace}
+.top{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid rgba(255,255,255,0.05);position:relative;z-index:101}
+#logo{height:40px}
+.menu-btn{cursor:pointer;width:28px;height:20px;position:relative;border:none;background:transparent;z-index:101}
+.menu-btn span,.menu-btn::before,.menu-btn::after{content:'';display:block;height:2px;width:100%;background:var(--fg);position:absolute;left:0;transition:.2s}
+.menu-btn span{top:9px} .menu-btn::before{top:0} .menu-btn::after{bottom:0}
+.sidebar{position:fixed;right:-260px;top:0;height:100%;width:260px;background:#050505;border-left:1px solid rgba(255,255,255,0.05);padding:16px;transition:right .3s ease,opacity .3s ease;z-index:102;overflow-y:auto;opacity:0;pointer-events:none}
+.sidebar.show{right:0;opacity:1;pointer-events:auto}
+.overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.6);z-index:100;pointer-events:none}
+.overlay.show{display:block;pointer-events:auto}
+.sidebar button{display:block;margin-top:16px;padding:8px;border:none;background:var(--fg);color:#000;cursor:pointer;width:100%;border-radius:6px}
+.container{margin:20px auto;padding:16px;max-width:95%;background:var(--box);border:1px solid rgba(255,255,255,0.1);border-radius:8px;min-height:75vh}
+.btn{background:var(--fg);color:#000;border:none;padding:8px 14px;border-radius:6px;cursor:pointer}
+#dbContainer{display:none;margin-top:12px}
+#dbContainer.show{display:block}
+.table-wrap{overflow:auto;max-width:100%}
+table{width:100%;border-collapse:collapse;white-space:nowrap}
+th,td{border:1px solid rgba(255,255,255,0.08);padding:8px;text-align:left}
+th{background:#111}
+.actions{position:relative}
+.dot-btn{background:none;border:none;color:var(--fg);cursor:pointer;font-size:18px;padding:4px 8px}
+.dot-menu{display:none;position:absolute;right:6px;top:26px;background:#111;border:1px solid rgba(255,255,255,0.08);border-radius:6px;z-index:50;min-width:140px}
+.dot-menu.show{display:block}
+.dot-menu button{display:block;width:100%;background:none;color:var(--fg);border:none;text-align:left;padding:8px;cursor:pointer}
+.dot-menu button:hover{background:#222}
+.edit-box{display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#111;padding:18px;border:1px solid rgba(255,255,255,0.08);border-radius:8px;z-index:200;width:320px}
+.edit-box input{width:100%;padding:8px;margin-bottom:10px;background:#000;border:1px solid var(--fg);color:var(--fg);border-radius:6px}
+.edit-row{display:flex;gap:8px}
+.edit-row .btn{flex:1}
+</style>
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+const supabase = createClient(
+  "https://thdzrkzdkdihjximoalb.supabase.co",
+  "YOUR_API_KEY_HERE" // Replace with your actual API key
+);
+
+function getCookie(name) {
+    const c = document.cookie.split('; ').find(r => r.startsWith(name + '='));
+    if (!c) return null;
+    try {
+        return JSON.parse(decodeURIComponent(c.split('=')[1]));
+    } catch (e) {
+        console.error('Error parsing cookie:', e);
+        return null;
+    }
+}
+
+function clearCookie(name) {
+    document.cookie = name + '=; path=/; max-age=0';
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+    const admin = getCookie('admin');
+    if (!admin) return location.href = 'admin.html';
+
+    const menuBtn = document.getElementById('menuBtn');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('overlay');
+    const logoutBtn = document.getElementById('logout');
+    const dbBtn = document.getElementById('dbBtn');
+    const dbContainer = document.getElementById('dbContainer');
+    const editBox = document.getElementById('editBox');
+    const editInput = document.getElementById('editInput');
+    const saveEdit = document.getElementById('saveEdit');
+    const cancelEdit = document.getElementById('cancelEdit');
+    let editId = null, editField = null;
+
+    menuBtn.addEventListener('click', () => {
+        const isShown = sidebar.classList.toggle('show');
+        overlay.classList.toggle('show', isShown);
+    });
+
+    overlay.addEventListener('click', () => {
+        sidebar.classList.remove('show');
+        overlay.classList.remove('show');
+    });
+
+    logoutBtn.addEventListener('click', () => {
+        clearCookie('admin');
+        location.href = 'admin.html';
+    });
+
+    dbBtn.addEventListener('click', async () => {
+        const show = dbContainer.classList.toggle('show');
+        if (show) await loadUsers();
+    });
+
+    async function loadUsers() {
+        dbContainer.innerHTML = '<div class="table-wrap">Loading...</div>';
+        try {
+            const { data, error } = await supabase.from('users').select('id,username,password,created_at').order('created_at', { ascending: false });
+            if (error) throw error;
+            if (!data || data.length === 0) {
+                dbContainer.innerHTML = '<div class="table-wrap">No users</div>';
+                return;
+            }
+            const rows = data.map(u => {
+                const created = u.created_at ? new Date(u.created_at).toLocaleString() : '-';
+                return `<tr data-id="${u.id}"><td>${escapeHtml(u.username)}</td><td>${escapeHtml(u.password)}</td><td>${created}</td><td class="actions"><button class="dot-btn">⋮</button><div class="dot-menu"><button class="editUser">Edit User</button><button class="editPass">Edit Password</button><button class="delUser">Delete User</button></div></td></tr>`;
+            }).join('');
+            dbContainer.innerHTML = `<div class="table-wrap"><table><thead><tr><th>Username</th><th>Password</th><th>Date Created</th><th>Actions</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+            document.querySelectorAll('.dot-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const menu = e.target.nextElementSibling;
+                    document.querySelectorAll('.dot-menu').forEach(m => {
+                        if (m !== menu) m.classList.remove('show');
+                    });
+                    menu.classList.toggle('show');
+                });
+            });
+            const users = data;
+            document.querySelectorAll('.editUser').forEach((btn, i) => {
+                btn.addEventListener('click', () => {
+                    editId = users[i].id;
+                    editField = 'username';
+                    editInput.value = users[i].username;
+                    editBox.style.display = 'block';
+                });
+            });
+            document.querySelectorAll('.editPass').forEach((btn, i) => {
+                btn.addEventListener('click', () => {
+                    editId = users[i].id;
+                    editField = 'password';
+                    editInput.value = users[i].password;
+                    editBox.style.display = 'block';
+                });
+            });
+            document.querySelectorAll('.delUser').forEach((btn, i) => {
+                btn.addEventListener('click', () => deleteUser(users[i].id));
+            });
+        } catch (err) {
+            dbContainer.innerHTML = `<div class="table-wrap">Error loading users: ${err.message}</div>`;
+            console.error('Error loading users:', err);
+        }
+    }
+
+    async function deleteUser(id) {
+        if (!confirm('Delete this user?')) return;
+        try {
+            const { error } = await supabase.from('users').delete().eq('id', id);
+            if (error) throw error;
+            await loadUsers();
+        } catch (err) {
+            alert('Error deleting: ' + err.message);
+            console.error('Error deleting user:', err);
+        }
+    }
+
+    saveEdit.addEventListener('click', async () => {
+        if (!editId || !editField) return;
+        const payload = { [editField]: editInput.value };
+        try {
+            const { error } = await supabase.from('users').update(payload).eq('id', editId);
+            editBox.style.display = 'none';
+            editId = null;
+            editField = null;
+            if (error) throw error;
+            await loadUsers();
+        } catch (err) {
+            alert('Error saving: ' + err.message);
+            console.error('Error saving edit:', err);
+        }
+    });
+
+    cancelEdit.addEventListener('click', () => {
+        editBox.style.display = 'none';
+        editId = null;
+        editField = null;
+    });
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return String(str).replace(/[&<>\"']/g, s => ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#39;'
+        })[s]);
+    }
+});
+</script>
+</head>
+<body>
+<div class="top"><img id="logo" src="assets/logo.png" alt="logo"><button id="menuBtn" class="menu-btn"><span></span></button></div>
+<div id="overlay" class="overlay"></div>
+<div id="sidebar" class="sidebar"><div>Logged in as <strong id="adminName">Admin</strong></div><button id="logout">Log Out</button></div>
+<div class="container"><button id="dbBtn" class="btn">Database</button><div id="dbContainer"></div></div>
+<div class="edit-box" id="editBox"><h3>Edit</h3><input id="editInput" type="text"/><div class="edit-row"><button id="saveEdit" class="btn">Save</button><button id="cancelEdit" class="btn">Cancel</button></div></div>
+</body>
+</html>
