@@ -6,145 +6,180 @@
 <link rel="icon" type="image/png" href="/assets/logo.png">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <style>
-  :root {
-    --bg: #000;
-    --fg: #00ff00;
-    --accent: #0f0;
-    --error: #ff4444;
-    --input-bg: #111;
-    --input-border: #00ff00;
-  }
+:root{
+  --bg:#f4f6f8;
+  --card:#ffffff;
+  --muted:#6b7280;
+  --text:#0f1724;
+  --accent:#06b6d4;
+  --hacker-accent: rgba(6, 182, 212, 0.06);
+  --error:#ef4444;
+  --radius:12px;
+  --glass: rgba(255,255,255,0.6);
+  --shadow: 0 8px 24px rgba(15,23,36,0.06);
+}
 
-  html, body {
-    height: 100%;
-    margin: 0;
-    background: var(--bg);
-    color: var(--fg);
-    font-family: 'Fira Code', 'Courier New', monospace;
-    display: flex;
-  }
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;background:linear-gradient(180deg,var(--bg),#e9eef2);font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; color:var(--text); -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; display:grid; place-items:center; padding:24px}
 
-  .container {
-    display: flex;
-    width: 100%;
-    height: 100%;
-  }
+.wrap{
+  width:380px;
+  max-width:96%;
+  background:var(--card);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  padding:36px 28px;
+  position:relative;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+  align-items:stretch;
+}
 
-  .left {
-    flex: 1;
-  }
+/* subtle 2% hacker vibe: thin neon accent on the left */
+.wrap::before{
+  content:"";
+  position:absolute;
+  left:0;
+  top:0;
+  bottom:0;
+  width:6px;
+  background:linear-gradient(180deg, rgba(6,182,212,0.12), rgba(6,182,212,0.06));
+  border-top-left-radius:var(--radius);
+  border-bottom-left-radius:var(--radius);
+  pointer-events:none;
+  opacity:0.9;
+}
 
-  .right {
-    flex: 1;
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    padding-right: 50px;
-  }
+.header{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin-bottom:6px;
+}
 
-  .wrap {
-    width: 400px;
-    padding: 40px 30px;
-    background: rgba(0,0,0,0.85);
-    border: 2px solid var(--accent);
-    box-shadow: 0 0 20px var(--accent);
-    border-radius: 12px;
-    text-align: center;
-    animation: glow 2s infinite alternate;
-    box-sizing: border-box;
-  }
+.logo{
+  width:56px;
+  height:56px;
+  border-radius:10px;
+  object-fit:contain;
+  background:linear-gradient(180deg, rgba(6,182,212,0.06), transparent);
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  box-shadow:0 6px 18px rgba(6,182,212,0.04);
+}
 
-  @keyframes glow {
-    0% { box-shadow: 0 0 10px var(--accent); }
-    100% { box-shadow: 0 0 20px var(--accent); }
-  }
+h2{
+  margin:0;
+  font-size:18px;
+  font-weight:600;
+  color:var(--text);
+}
 
-  .logo {
-    width: 120px;
-    height: auto;
-    margin-bottom: 20px;
-    filter: drop-shadow(0 0 5px var(--accent));
-  }
+.lead{
+  margin:0;
+  font-size:13px;
+  color:var(--muted);
+}
 
-  h2 {
-    margin: 10px 0 20px;
-    font-weight: 500;
-    letter-spacing: 1px;
-    color: var(--fg);
-  }
+form{display:flex;flex-direction:column;gap:10px;margin-top:2px}
 
-  input {
-    width: 100%;
-    padding: 10px;
-    margin: 10px 0;
-    background: var(--input-bg);
-    border: 1px solid var(--input-border);
-    color: var(--fg);
-    font-size: 16px;
-    border-radius: 6px;
-    outline: none;
-    transition: all 0.2s ease-in-out;
-    box-sizing: border-box;
-  }
+.input{
+  width:100%;
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
 
-  input:focus {
-    border-color: #0f0;
-    box-shadow: 0 0 8px var(--accent);
-  }
+label{
+  font-size:12px;
+  color:var(--muted);
+}
 
-  button {
-    width: 100%;
-    padding: 10px 20px;
-    margin-top: 10px;
-    background: var(--fg);
-    color: #000;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-weight: bold;
-    font-size: 16px;
-    transition: transform 0.1s, box-shadow 0.2s;
-  }
+input{
+  width:100%;
+  padding:12px 14px;
+  border-radius:10px;
+  border:1px solid #e6e9ee;
+  background:transparent;
+  font-size:14px;
+  color:var(--text);
+  outline:none;
+  transition:box-shadow .15s ease, border-color .12s ease, transform .08s;
+  -webkit-appearance:none;
+  appearance:none;
+}
 
-  button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 0 10px var(--accent);
-  }
+input::placeholder{color:rgba(15,23,36,0.35)}
 
-  a {
-    color: var(--fg);
-    text-decoration: none;
-    transition: color 0.2s;
-  }
+input:focus{
+  border-color:var(--accent);
+  box-shadow:0 6px 20px rgba(6,182,212,0.08);
+  transform:translateY(-1px);
+}
 
-  a:hover {
-    color: #0f0;
-  }
+/* compact actions */
+.actions{display:flex;flex-direction:column;gap:10px;margin-top:6px}
 
-  .error {
-    color: var(--error);
-    font-size: 13px;
-    font-weight: bold;
-    opacity: 1;
-    transition: .3s;
-    margin-top: 10px;
-  }
+button{
+  padding:12px 14px;
+  border-radius:10px;
+  border:none;
+  background:linear-gradient(180deg,var(--accent), #0891b2);
+  color:white;
+  font-weight:600;
+  cursor:pointer;
+  font-size:14px;
+  box-shadow:0 8px 24px rgba(8,145,178,0.12);
+  transition:transform .08s, box-shadow .12s;
+}
 
-  .hidden { opacity: 0; }
+button:hover{transform:translateY(-3px);box-shadow:0 14px 36px rgba(8,145,178,0.14)}
 
-  footer {
-    padding: 10px 16px;
-    border-top: 1px solid rgba(255,255,255,0.05);
-    display: flex;
-    justify-content: center;
-    font-size: 13px;
-    opacity: 0.8;
-    margin-top: 20px;
-  }
+.meta{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  font-size:13px;
+  color:var(--muted);
+  gap:12px;
+}
+
+a{color:var(--accent);text-decoration:none}
+
+.error{
+  color:var(--error);
+  font-size:13px;
+  font-weight:600;
+  min-height:18px;
+  opacity:1;
+  transition:opacity .2s;
+}
+
+.hidden{opacity:0}
+
+.footer{
+  margin-top:6px;
+  display:flex;
+  justify-content:center;
+  font-size:13px;
+  color:var(--muted);
+  gap:8px;
+}
+
+/* responsive tweaks */
+@media (max-width:420px){
+  .wrap{padding:22px}
+  .logo{width:48px;height:48px}
+  h2{font-size:16px}
+  input,button{font-size:14px;padding:10px;border-radius:8px}
+}
 </style>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
-const supabase = createClient("https://thdzrkzdkdihjximoalb.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRoZHpya3pkaGp4aW1vYWxiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAyNDkzNzIsImV4cCI6MjA3NTgyNTM3Mn0.uHpGricbNHVWsndClTd8K7LVRTCzWLF0ziwuGKvOSTw")
+const supabase = createClient("https://thdzrkzdkdihjximoalb.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRoZHpya3pka2RpaGp4aW1vYWxiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAyNDkzNzIsImV4cCI6MjA3NTgyNTM3Mn0.uHpGricbNHVWsndClTd8K7LVRTCzWLF0ziwuGKvOSTw")
 
 function setCookie(name,value,days){
   const max = days ? `; max-age=${days*24*60*60}` : ''
@@ -204,24 +239,37 @@ document.addEventListener('DOMContentLoaded', ()=>{
 </script>
 </head>
 <body>
-  <div class="container">
-    <div class="left"></div>
-    <div class="right">
-      <div class="wrap">
-        <img src="/assets/logo.png" alt="Logo" class="logo">
-        <h2>Login</h2>
-        <form id="loginForm">
-          <input id="username" type="text" placeholder="Username" required><br>
-          <input id="password" type="password" placeholder="Password" required><br>
-          <button type="submit">Login</button>
-        </form>
-        <p class="error hidden"></p>
-        <p>No Account? <a href="/signup">Sign Up</a></p>
+  <div class="wrap" role="main">
+    <div class="header">
+      <img src="/assets/logo.png" alt="Logo" class="logo">
+      <div>
+        <h2>Sign in</h2>
+        <p class="lead">Access your account</p>
       </div>
     </div>
+
+    <form id="loginForm" novalidate>
+      <div class="input">
+        <label for="username">Username</label>
+        <input id="username" name="username" type="text" placeholder="Enter your username" required>
+      </div>
+
+      <div class="input">
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" placeholder="Enter your password" required>
+      </div>
+
+      <div class="actions">
+        <button type="submit">Sign in</button>
+        <div class="meta">
+          <span class="links">No account? <a href="/signup">Sign up</a></span>
+        </div>
+      </div>
+    </form>
+
+    <p class="error hidden" aria-live="polite"></p>
+
+    <div class="footer">Idawn™</div>
   </div>
-  <footer>
-    <div>Idawn™</div>
-  </footer>
 </body>
 </html>
