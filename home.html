@@ -6,7 +6,7 @@
 <title>Home</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <style>
-/* --- STYLES FROM LOGIN.HTML --- */
+
 :root{
   --bg:#f4f6f8;
   --card:#ffffff;
@@ -16,7 +16,7 @@
   --hacker-accent: rgba(6, 182, 212, 0.06);
   --error:#ef4444;
   --radius:12px;
-  --glass: rgba(255,255,255,0.6);
+  --glass: rgba(255,255,255,0.06);
   --shadow: 0 8px 24px rgba(15,23,36,0.06);
 }
 html[data-theme="dark"]{
@@ -32,28 +32,30 @@ html[data-theme="dark"]{
 }
 
 *{box-sizing:border-box}
+
+
 html,body{
   height:100%;
   margin:0;
-  background:var(--bg); /* Use variable */
-  font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; /* Use login font */
-  color:var(--text); /* Use variable */
-  display:flex; /* Use flex to manage footer */
-  flex-direction:column; /* Stack body children vertically */
+  background:linear-gradient(180deg,var(--bg),#e9eef2); 
+  font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; 
+  color:var(--text); 
+  display:flex; 
+  flex-direction:column; 
 }
 html[data-theme="dark"], html[data-theme="dark"] body{
-  background:var(--bg);
+  background:linear-gradient(180deg,#0d1117,#06080a); 
 }
 
-/* --- STYLES FOR HOME.HTML LAYOUT (ADAPTED) --- */
+
 .top {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 12px 16px;
-    background: var(--card); /* Use card background */
-    box-shadow: var(--shadow); /* Use shadow */
-    border-bottom: 1px solid var(--glass); /* Use glass for border */
+    background: var(--card); 
+    box-shadow: var(--shadow); 
+    border-bottom: 1px solid var(--glass); 
     position: sticky;
     top: 0;
     z-index: 101;
@@ -76,7 +78,7 @@ html[data-theme="dark"], html[data-theme="dark"] body{
     display: block;
     height: 2px;
     width: 100%;
-    background: var(--text); /* Use text color */
+    background: var(--text); 
     position: absolute;
     left: 0;
     transition: .2s;
@@ -91,8 +93,8 @@ html[data-theme="dark"], html[data-theme="dark"] body{
     top: 0;
     height: 100%;
     width: 280px;
-    background: var(--card); /* Use card background */
-    box-shadow: var(--shadow); /* Use shadow */
+    background: var(--card); 
+    box-shadow: var(--shadow); 
     padding: 16px;
     transition: right .3s ease;
     z-index: 1000;
@@ -144,7 +146,7 @@ html[data-theme="dark"], html[data-theme="dark"] body{
     color: var(--accent);
 }
 
-/* Logout button style (from login button) */
+
 #logout {
     padding: 12px 14px;
     border-radius: 10px;
@@ -157,7 +159,7 @@ html[data-theme="dark"], html[data-theme="dark"] body{
     box-shadow: 0 8px 24px rgba(8, 145, 178, 0.12);
     transition: transform .08s, box-shadow .12s;
     width: 100%;
-    margin-bottom: 16px; /* Space from theme toggle */
+    margin-bottom: 16px; 
 }
 #logout:hover {
     transform: translateY(-3px);
@@ -178,7 +180,7 @@ html[data-theme="dark"], html[data-theme="dark"] body{
 
 .content {
     padding: 24px;
-    flex-grow: 1; /* Makes content fill space */
+    flex-grow: 1; 
 }
 .welcome-box {
     background: var(--card);
@@ -187,7 +189,7 @@ html[data-theme="dark"], html[data-theme="dark"] body{
     margin: 0;
     border-radius: var(--radius);
     box-shadow: var(--shadow);
-    min-height: 300px; /* Set a min-height */
+    min-height: 300px; 
     display: flex;
     flex-direction: column;
 }
@@ -220,8 +222,7 @@ footer a {
     text-decoration: none;
 }
 
-/* --- THEME TOGGLE STYLES (FROM LOGIN) --- */
-.theme-toggle-sidebar { /* Renamed to avoid conflicts */
+.theme-toggle-sidebar { 
     display: flex;
     align-items: center;
     gap: 8px;
@@ -254,7 +255,7 @@ footer a {
 </style>
 
 <script>
-// --- COOKIE & THEME HELPERS (FROM LOGIN) ---
+
 function setCookie(n,v,d){
     document.cookie=n+"="+encodeURIComponent(v)+"; path=/; max-age="+(d*86400)
 }
@@ -275,10 +276,10 @@ function clearCookie(name){
 
 function applyTheme(t){
   document.documentElement.setAttribute("data-theme",t)
-  setCookie("theme",t,365) // Save theme choice
+  setCookie("theme",t,365) 
   const i=document.getElementById("themeIcon")
   const l=document.getElementById("themeLabel")
-  if(!i || !l) return; // Safety check
+  if(!i || !l) return; 
   
   if(t==="dark"){
     i.className="icon moon"
@@ -289,9 +290,9 @@ function applyTheme(t){
   }
 }
 
-// --- MAIN SCRIPT LOGIC (MERGED) ---
+
 document.addEventListener('DOMContentLoaded', ()=>{
-  // --- 1. APPLY THEME (RUNS FIRST) ---
+   ---
   const savedTheme = getCookie("theme") || "light"
   applyTheme(savedTheme)
   
@@ -300,14 +301,14 @@ document.addEventListener('DOMContentLoaded', ()=>{
     applyTheme(t)
   })
   
-  // --- 2. AUTH LOGIC ---
+  
   const user = getCookieJSON('user')
   if(!user) return location.href='index.html' // Redirect if no user
 
   document.getElementById('uname2').textContent = user.username
   document.getElementById('welcomeMsg').textContent = "Welcome Back, " + user.username
 
-  // --- 3. SIDEBAR LOGIC ---
+  
   const sidebar = document.getElementById('sidebar')
   const overlay = document.getElementById('overlay')
   const menuBtn = document.getElementById('menuBtn')
@@ -320,7 +321,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
   menuBtn.addEventListener('click', ()=> toggleSidebar(!sidebar.classList.contains('show')))
   overlay.addEventListener('click', ()=> toggleSidebar(false))
   
-  // --- 4. LOGOUT LOGIC ---
+  
   document.getElementById('logout').addEventListener('click', ()=>{
     clearCookie('user')
     location.href='index.html'
@@ -361,8 +362,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
     <div class="welcome-box">
       <p id="welcomeMsg" class="welcome-msg">Welcome Back</p>
       <div class="extra-content" id="extraContent">
-        <p style="margin-top: 16px; color: var(--muted);">This is your new home page.</p>
-      </div>
+              </div>
     </div>
   </div>
 
