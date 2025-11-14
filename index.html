@@ -1,303 +1,374 @@
 <!doctype html>
-<html lang="en">
+<html>
 <head>
 <meta charset="utf-8">
 <title>Login</title>
 <link rel="icon" type="image/png" href="/assets/logo.png">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+
 <style>
-  :root {
-    --light-bg: #f4f4f9;
-    --light-fg: #111;
-    --dark-bg: #121212;
-    --dark-fg: #e0e0e0;
-    --accent: #4caf50;
-  }
+:root{
+  --bg:#f4f6f8;
+  --card:#ffffff;
+  --muted:#6b7280;
+  --text:#0f1724;
+  --accent:#06b6d4;
+  --hacker-accent: rgba(6, 182, 212, 0.06);
+  --error:#ef4444;
+  --radius:12px;
+  --glass: rgba(255,255,255,0.6);
+  --shadow: 0 8px 24px rgba(15,23,36,0.06);
+}
 
-  html, body {
-    height: 100%;
-    margin: 0;
-    font-family: 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: var(--light-bg);
-    color: var(--light-fg);
-    transition: background 0.3s, color 0.3s;
-  }
+/* DARK MODE VARIABLES */
+:root.dark {
+  --bg:#0d1117;
+  --card:#161b22;
+  --muted:#9ca3af;
+  --text:#e5e7eb;
+  --accent:#06b6d4;
+  --hacker-accent: rgba(6, 182, 212, 0.10);
+  --shadow: 0 8px 24px rgba(0,0,0,0.4);
+}
 
-  body.dark-mode {
-    background: var(--dark-bg);
-    color: var(--dark-fg);
-  }
+*{box-sizing:border-box}
+html,body{
+  height:100%;
+  margin:0;
+  background:var(--bg);
+  font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  color:var(--text);
+  display:grid;
+  place-items:center;
+  padding:24px;
+}
 
-  .wrap {
-    width: 100%;
-    max-width: 400px;
-    padding: 40px 30px;
-    background: rgba(255,255,255,0.95);
-    border-radius: 12px;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
-    text-align: center;
-    transition: background 0.3s, color 0.3s, box-shadow 0.3s;
-  }
+/* THE WRAP */
+.wrap{
+  width:380px;
+  max-width:96%;
+  background:var(--card);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  padding:36px 28px;
+  position:relative;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+  align-items:stretch;
+}
 
-  body.dark-mode .wrap {
-    background: rgba(18,18,18,0.95);
-    box-shadow: 0 8px 24px rgba(0,0,0,0.5);
-  }
+/* thin hacker accent */
+.wrap::before{
+  content:"";
+  position:absolute;
+  left:0;
+  top:0;
+  bottom:0;
+  width:6px;
+  background:linear-gradient(180deg, rgba(6,182,212,0.12), rgba(6,182,212,0.06));
+  border-top-left-radius:var(--radius);
+  border-bottom-left-radius:var(--radius);
+  pointer-events:none;
+  opacity:0.9;
+}
 
-  .logo {
-    width: 100px;
-    margin-bottom: 20px;
-  }
+.header{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin-bottom:6px;
+}
 
-  h2 {
-    margin: 10px 0 20px;
-    font-weight: 600;
-    font-size: 24px;
-  }
+.logo{
+  width:56px;
+  height:56px;
+  border-radius:10px;
+  object-fit:contain;
+  background:linear-gradient(180deg, rgba(6,182,212,0.06), transparent);
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  box-shadow:0 6px 18px rgba(6,182,212,0.04);
+}
 
-  input {
-    width: 100%;
-    padding: 12px 14px;
-    margin: 10px 0;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    font-size: 16px;
-    outline: none;
-    transition: all 0.2s;
-  }
+h2{
+  margin:0;
+  font-size:18px;
+  font-weight:600;
+  color:var(--text);
+}
 
-  input:focus {
-    border-color: var(--accent);
-    box-shadow: 0 0 8px rgba(76,175,80,0.3);
-  }
+.lead{
+  margin:0;
+  font-size:13px;
+  color:var(--muted);
+}
 
-  button {
-    width: 100%;
-    padding: 12px;
-    margin-top: 15px;
-    background: var(--accent);
-    color: #fff;
-    border: none;
-    border-radius: 8px;
-    font-weight: 600;
-    font-size: 16px;
-    cursor: pointer;
-    transition: background 0.2s, transform 0.1s;
-  }
+form{display:flex;flex-direction:column;gap:10px;margin-top:2px}
 
-  button:hover {
-    background: #43a047;
-    transform: translateY(-1px);
-  }
+.input{
+  width:100%;
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
 
-  .error {
-    color: #f44336;
-    font-size: 13px;
-    margin-top: 10px;
-    display: none;
-  }
+label{
+  font-size:12px;
+  color:var(--muted);
+}
 
-  .error.show {
-    display: block;
-  }
+input{
+  width:100%;
+  padding:12px 14px;
+  border-radius:10px;
+  border:1px solid #e6e9ee;
+  background:transparent;
+  font-size:14px;
+  color:var(--text);
+  outline:none;
+  transition:box-shadow .15s ease, border-color .12s ease, transform .08s;
+}
 
-  p {
-    font-size: 14px;
-    margin-top: 15px;
-  }
+:root.dark input{
+  border:1px solid #2a3038;
+}
 
-  a {
-    color: var(--accent);
-    text-decoration: none;
-  }
+input::placeholder{color:rgba(15,23,36,0.35)}
+:root.dark input::placeholder{color:rgba(229,231,235,0.35)}
 
-  a:hover {
-    text-decoration: underline;
-  }
+input:focus{
+  border-color:var(--accent);
+  box-shadow:0 6px 20px rgba(6,182,212,0.08);
+  transform:translateY(-1px);
+}
 
-  footer {
-    position: fixed;
-    bottom: 10px;
-    left: 10px;
-    display: flex;
-    align-items: center;
-  }
+.actions{display:flex;flex-direction:column;gap:10px;margin-top:6px}
 
-  .theme-switch {
-    width: 40px;
-    height: 24px;
-    background: #ccc;
-    border-radius: 12px;
-    position: relative;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    padding: 2px;
-    transition: background 0.3s;
-  }
+button{
+  padding:12px 14px;
+  border-radius:10px;
+  border:none;
+  background:linear-gradient(180deg,var(--accent), #0891b2);
+  color:white;
+  font-weight:600;
+  cursor:pointer;
+  font-size:14px;
+  box-shadow:0 8px 24px rgba(8,145,178,0.12);
+  transition:transform .08s, box-shadow .12s;
+}
 
-  .theme-switch.dark {
-    background: #555;
-    justify-content: flex-end;
-  }
+button:hover{
+  transform:translateY(-3px);
+  box-shadow:0 14px 36px rgba(8,145,178,0.14);
+}
 
-  .switch-knob {
-    width: 20px;
-    height: 20px;
-    background: #fff;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: transform 0.3s;
-  }
+.meta{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  font-size:13px;
+  color:var(--muted);
+  gap:12px;
+}
 
-  .switch-knob svg {
-    width: 12px;
-    height: 12px;
-    fill: #f39c12;
-  }
+a{color:var(--accent);text-decoration:none}
 
-  .theme-switch.dark .switch-knob svg {
-    fill: #fff;
-  }
+.error{
+  color:var(--error);
+  font-size:13px;
+  font-weight:600;
+  min-height:18px;
+  opacity:1;
+  transition:opacity .2s;
+}
 
-  @media(max-width: 480px){
-    .wrap {
-      padding: 30px 20px;
-    }
-  }
+.hidden{opacity:0}
+
+.footer{
+  margin-top:6px;
+  display:flex;
+  justify-content:center;
+  font-size:13px;
+  color:var(--muted);
+  gap:8px;
+}
+
+/* THEME SWITCH BUTTON */
+.theme-toggle{
+  position:fixed;
+  bottom:20px;
+  left:20px;
+  width:48px;
+  height:48px;
+  border-radius:50%;
+  background:var(--card);
+  box-shadow:var(--shadow);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  transition:background .2s;
+}
+
+.theme-toggle svg{
+  width:24px;
+  height:24px;
+  fill:var(--text);
+  transition:opacity .25s ease;
+}
+
+.theme-toggle .sun{opacity:1;}
+.theme-toggle .moon{opacity:0;}
+
+:root.dark .theme-toggle .sun{opacity:0;}
+:root.dark .theme-toggle .moon{opacity:1;}
+
+/* responsive */
+@media (max-width:420px){
+  .wrap{padding:22px}
+  .logo{width:48px;height:48px}
+  h2{font-size:16px}
+  input,button{font-size:14px;padding:10px;border-radius:8px}
+}
 </style>
+
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+const supabase = createClient("https://thdzrkzdkdihjximoalb.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRoZHpya3pka2RpaGp4aW1vYWxiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAyNDkzNzIsImV4cCI6MjA3NTgyNTM3Mn0.uHpGricbNHVWsndClTd8K7LVRTCzWLF0ziwuGKvOSTw")
+
+/* COOKIE SET */
+function setCookie(name,value,days){
+  const max = days ? `; max-age=${days*24*60*60}` : ''
+  document.cookie = name + '=' + encodeURIComponent(value) + '; path=/' + max
+}
+
+/* THEME SETUP */
+function setTheme(mode){
+  if(mode === "dark"){
+    document.documentElement.classList.add("dark")
+    localStorage.setItem("theme","dark")
+  } else {
+    document.documentElement.classList.remove("dark")
+    localStorage.setItem("theme","light")
+  }
+}
+
+document.addEventListener("DOMContentLoaded",()=>{
+  const saved = localStorage.getItem("theme") || "light"
+  setTheme(saved)
+
+  document.querySelector(".theme-toggle").onclick = ()=>{
+    const current = document.documentElement.classList.contains("dark") ? "dark" : "light"
+    setTheme(current === "light" ? "dark" : "light")
+  }
+})
+
+let failCount = 0
+let cooldown = false
+let timeoutId = null
+
+function showError(msg){
+  const err = document.querySelector('.error')
+  err.textContent = msg
+  err.classList.remove('hidden')
+  clearTimeout(timeoutId)
+  timeoutId = setTimeout(()=>err.classList.add('hidden'), 5000)
+}
+
+async function handleLogin(e){
+  e.preventDefault()
+  if(cooldown){
+    showError("Please wait before trying again.")
+    return
+  }
+
+  const username = document.getElementById('username').value.trim()
+  const password = document.getElementById('password').value
+  if(!username || !password){
+    showError("Enter username & password")
+    return
+  }
+
+  const { data, error } = await supabase
+    .from('users')
+    .select('id,username')
+    .eq('username', username)
+    .eq('password', password)
+    .maybeSingle()
+
+  if(error || !data){
+    failCount++
+    if(failCount >= 5){
+      showError("Please try again later")
+      cooldown = true
+      let delay = failCount > 5 ? 15000 : 10000
+      setTimeout(()=>cooldown=false, delay)
+    } else {
+      showError("Invalid username or password")
+    }
+    return
+  }
+
+  setCookie('user', JSON.stringify({ id: data.id, username: data.username }), 7)
+  location.href = '/home'
+}
+
+document.addEventListener('DOMContentLoaded', ()=>{
+  if(document.cookie.split('; ').some(c=>c.startsWith('user='))) return location.href='home.html'
+  document.getElementById('loginForm').addEventListener('submit', handleLogin)
+})
+</script>
 </head>
+
 <body>
-  <div class="wrap">
+
+<!-- THEME SWITCH BUTTON -->
+<div class="theme-toggle">
+  <!-- SUN ICON -->
+  <svg class="sun" viewBox="0 0 24 24">
+    <path d="M12 18a6 6 0 100-12 6 6 0 000 12zm0-14V2m0 20v-2m10-8h-2M4 12H2m15.536 7.536l-1.414-1.414M6.879 6.879L5.464 5.464m0 13.072l1.415-1.414M17.657 6.879l1.414-1.415"/>
+  </svg>
+
+  <!-- MOON ICON -->
+  <svg class="moon" viewBox="0 0 24 24">
+    <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
+  </svg>
+</div>
+
+<div class="wrap" role="main">
+  <div class="header">
     <img src="/assets/logo.png" alt="Logo" class="logo">
-    <h2>Login</h2>
-    <form id="loginForm">
-      <input id="username" type="text" placeholder="Username" required><br>
-      <input id="password" type="password" placeholder="Password" required><br>
-      <button type="submit">Login</button>
-    </form>
-    <p class="error" id="errorMsg"></p>
-    <p>No Account? <a href="/signup">Sign Up</a></p>
+    <div>
+      <h2>Sign in</h2>
+      <p class="lead">Access your account</p>
+    </div>
   </div>
 
-  <footer>
-    <div class="theme-switch" id="themeSwitch">
-      <div class="switch-knob" id="switchKnob">
-        <!-- Sun icon by default -->
-        <svg viewBox="0 0 24 24">
-          <circle cx="12" cy="12" r="5"/>
-          <line x1="12" y1="1" x2="12" y2="3"/>
-          <line x1="12" y1="21" x2="12" y2="23"/>
-          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
-          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
-          <line x1="1" y1="12" x2="3" y2="12"/>
-          <line x1="21" y1="12" x2="23" y2="12"/>
-          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
-          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
-        </svg>
+  <form id="loginForm" novalidate>
+    <div class="input">
+      <label for="username">Username</label>
+      <input id="username" name="username" type="text" placeholder="Enter your username" required>
+    </div>
+
+    <div class="input">
+      <label for="password">Password</label>
+      <input id="password" name="password" type="password" placeholder="Enter your password" required>
+    </div>
+
+    <div class="actions">
+      <button type="submit">Sign in</button>
+      <div class="meta">
+        <span class="links">No account? <a href="/signup">Sign up</a></span>
       </div>
     </div>
-  </footer>
+  </form>
 
-  <script type="module">
-    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
-    const supabase = createClient("https://thdzrkzdkdihjximoalb.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRoZHpya3pkaGp4aW1vYWxiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAyNDkzNzIsImV4cCI6MjA3NTgyNTM3Mn0.uHpGricbNHVWsndClTd8K7LVRTCzWLF0ziwuGKvOSTw")
+  <p class="error hidden" aria-live="polite"></p>
+  <div class="footer">Idawn™</div>
+</div>
 
-    function setCookie(name,value,days){
-      const max = days ? `; max-age=${days*24*60*60}` : ''
-      document.cookie = name + '=' + encodeURIComponent(value) + '; path=/' + max
-    }
-
-    let failCount = 0
-    let cooldown = false
-    let timeoutId = null
-
-    function showError(msg){
-      const err = document.getElementById('errorMsg');
-      err.textContent = msg;
-      err.classList.add('show');
-      clearTimeout(timeoutId);
-      timeoutId = setTimeout(()=>err.classList.remove('show'), 5000);
-    }
-
-    async function handleLogin(e){
-      e.preventDefault()
-      if(cooldown){
-        showError("Please wait before trying again.");
-        return
-      }
-      const username = document.getElementById('username').value.trim()
-      const password = document.getElementById('password').value
-      if(!username || !password){
-        showError("Enter username & password")
-        return
-      }
-      const { data, error } = await supabase
-        .from('users')
-        .select('id,username')
-        .eq('username', username)
-        .eq('password', password)
-        .maybeSingle()
-      if(error || !data){
-        failCount++
-        if(failCount >= 5){
-          showError("Please try again later")
-          cooldown = true
-          let delay = failCount > 5 ? 15000 : 10000
-          setTimeout(()=>cooldown=false, delay)
-        } else {
-          showError("Invalid username or password")
-        }
-        return
-      }
-      setCookie('user', JSON.stringify({ id: data.id, username: data.username }), 7)
-      location.href = '/home'
-    }
-
-    document.addEventListener('DOMContentLoaded', ()=>{
-      if(document.cookie.split('; ').some(c=>c.startsWith('user='))) return location.href='home.html'
-      document.getElementById('loginForm').addEventListener('submit', handleLogin)
-
-      const themeSwitch = document.getElementById('themeSwitch');
-      const switchKnob = document.getElementById('switchKnob');
-
-      function setTheme(dark){
-        if(dark){
-          document.body.classList.add('dark-mode');
-          themeSwitch.classList.add('dark');
-          switchKnob.innerHTML = `<svg viewBox="0 0 24 24">
-            <path d="M21 12.79A9 9 0 1111.21 3a7 7 0 109.79 9.79z"/>
-          </svg>`;
-        } else {
-          document.body.classList.remove('dark-mode');
-          themeSwitch.classList.remove('dark');
-          switchKnob.innerHTML = `<svg viewBox="0 0 24 24">
-            <circle cx="12" cy="12" r="5"/>
-            <line x1="12" y1="1" x2="12" y2="3"/>
-            <line x1="12" y1="21" x2="12" y2="23"/>
-            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
-            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
-            <line x1="1" y1="12" x2="3" y2="12"/>
-            <line x1="21" y1="12" x2="23" y2="12"/>
-            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
-            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
-          </svg>`;
-        }
-      }
-
-      themeSwitch.addEventListener('click', ()=>{
-        const dark = !document.body.classList.contains('dark-mode');
-        setTheme(dark);
-      });
-
-      setTheme(false);
-    });
-  </script>
 </body>
 </html>
