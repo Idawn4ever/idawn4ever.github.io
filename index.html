@@ -5,7 +5,6 @@
 <title>Login</title>
 <link rel="icon" type="image/png" href="/assets/logo.png">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-
 <style>
 :root{
   --bg:#f4f6f8;
@@ -19,31 +18,24 @@
   --glass: rgba(255,255,255,0.6);
   --shadow: 0 8px 24px rgba(15,23,36,0.06);
 }
-
-/* DARK MODE VARIABLES */
-:root.dark {
+html[data-theme="dark"]{
   --bg:#0d1117;
   --card:#161b22;
-  --muted:#9ca3af;
-  --text:#e5e7eb;
-  --accent:#06b6d4;
-  --hacker-accent: rgba(6, 182, 212, 0.10);
-  --shadow: 0 8px 24px rgba(0,0,0,0.4);
+  --muted:#8b949e;
+  --text:#e6edf3;
+  --accent:#00c4ff;
+  --hacker-accent: rgba(0, 196, 255, 0.08);
+  --error:#ff6b6b;
+  --glass: rgba(255,255,255,0.06);
+  --shadow: 0 8px 32px rgba(0,0,0,0.45);
 }
 
 *{box-sizing:border-box}
-html,body{
-  height:100%;
-  margin:0;
-  background:var(--bg);
-  font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-  color:var(--text);
-  display:grid;
-  place-items:center;
-  padding:24px;
+html,body{height:100%;margin:0;background:linear-gradient(180deg,var(--bg),#e9eef2);font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; color:var(--text); display:grid; place-items:center; padding:24px}
+html[data-theme="dark"], html[data-theme="dark"] body{
+  background:linear-gradient(180deg,#0d1117,#06080a);
 }
 
-/* THE WRAP */
 .wrap{
   width:380px;
   max-width:96%;
@@ -59,7 +51,6 @@ html,body{
   align-items:stretch;
 }
 
-/* thin hacker accent */
 .wrap::before{
   content:"";
   position:absolute;
@@ -132,12 +123,7 @@ input{
   transition:box-shadow .15s ease, border-color .12s ease, transform .08s;
 }
 
-:root.dark input{
-  border:1px solid #2a3038;
-}
-
 input::placeholder{color:rgba(15,23,36,0.35)}
-:root.dark input::placeholder{color:rgba(229,231,235,0.35)}
 
 input:focus{
   border-color:var(--accent);
@@ -160,10 +146,7 @@ button{
   transition:transform .08s, box-shadow .12s;
 }
 
-button:hover{
-  transform:translateY(-3px);
-  box-shadow:0 14px 36px rgba(8,145,178,0.14);
-}
+button:hover{transform:translateY(-3px);box-shadow:0 14px 36px rgba(8,145,178,0.14)}
 
 .meta{
   display:flex;
@@ -196,37 +179,33 @@ a{color:var(--accent);text-decoration:none}
   gap:8px;
 }
 
-/* THEME SWITCH BUTTON */
 .theme-toggle{
-  position:fixed;
-  bottom:20px;
-  left:20px;
-  width:48px;
-  height:48px;
-  border-radius:50%;
-  background:var(--card);
-  box-shadow:var(--shadow);
+  position:absolute;
+  bottom:16px;
+  left:16px;
   display:flex;
   align-items:center;
-  justify-content:center;
+  gap:8px;
   cursor:pointer;
-  transition:background .2s;
+  user-select:none;
+  font-size:14px;
+  color:var(--muted);
 }
 
-.theme-toggle svg{
-  width:24px;
-  height:24px;
-  fill:var(--text);
-  transition:opacity .25s ease;
+.icon{
+  width:20px;
+  height:20px;
+  display:inline-block;
 }
 
-.theme-toggle .sun{opacity:1;}
-.theme-toggle .moon{opacity:0;}
+.sun{
+  background:url('data:image/svg+xml;utf8,<svg fill="%23ffaa00" width="20" height="20" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><g stroke="%23ffaa00" stroke-width="2"><line x1="12" y1="1" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="23"/><line x1="4.2" y1="4.2" x2="6.3" y2="6.3"/><line x1="17.7" y1="17.7" x2="19.8" y2="19.8"/><line x1="1" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="23" y2="12"/><line x1="4.2" y1="19.8" x2="6.3" y2="17.7"/><line x1="17.7" y1="6.3" x2="19.8" y2="4.2"/></g></svg>') center/contain no-repeat;
+}
 
-:root.dark .theme-toggle .sun{opacity:0;}
-:root.dark .theme-toggle .moon{opacity:1;}
+.moon{
+  background:url('data:image/svg+xml;utf8,<svg fill="%23cfcfcf" width="20" height="20" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 0111.21 3 7 7 0 1019 14.79 9 9 0 0121 12.79z"/></svg>') center/contain no-repeat;
+}
 
-/* responsive */
 @media (max-width:420px){
   .wrap{padding:22px}
   .logo{width:48px;height:48px}
@@ -239,136 +218,102 @@ a{color:var(--accent);text-decoration:none}
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
 const supabase = createClient("https://thdzrkzdkdihjximoalb.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRoZHpya3pka2RpaGp4aW1vYWxiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAyNDkzNzIsImV4cCI6MjA3NTgyNTM3Mn0.uHpGricbNHVWsndClTd8K7LVRTCzWLF0ziwuGKvOSTw")
 
-/* COOKIE SET */
-function setCookie(name,value,days){
-  const max = days ? `; max-age=${days*24*60*60}` : ''
-  document.cookie = name + '=' + encodeURIComponent(value) + '; path=/' + max
-}
+function setCookie(n,v,d){document.cookie=n+"="+encodeURIComponent(v)+"; path=/; max-age="+(d*86400)}
+function getCookie(n){return document.cookie.split("; ").find(r=>r.startsWith(n+"="))?.split("=")[1]}
 
-/* THEME SETUP */
-function setTheme(mode){
-  if(mode === "dark"){
-    document.documentElement.classList.add("dark")
-    localStorage.setItem("theme","dark")
-  } else {
-    document.documentElement.classList.remove("dark")
-    localStorage.setItem("theme","light")
-  }
-}
+let failCount=0
+let cooldown=false
+let timeoutId=null
 
-document.addEventListener("DOMContentLoaded",()=>{
-  const saved = localStorage.getItem("theme") || "light"
-  setTheme(saved)
-
-  document.querySelector(".theme-toggle").onclick = ()=>{
-    const current = document.documentElement.classList.contains("dark") ? "dark" : "light"
-    setTheme(current === "light" ? "dark" : "light")
-  }
-})
-
-let failCount = 0
-let cooldown = false
-let timeoutId = null
-
-function showError(msg){
-  const err = document.querySelector('.error')
-  err.textContent = msg
-  err.classList.remove('hidden')
+function showError(m){
+  const e=document.querySelector('.error')
+  e.textContent=m
+  e.classList.remove('hidden')
   clearTimeout(timeoutId)
-  timeoutId = setTimeout(()=>err.classList.add('hidden'), 5000)
+  timeoutId=setTimeout(()=>e.classList.add('hidden'),5000)
 }
 
 async function handleLogin(e){
   e.preventDefault()
-  if(cooldown){
-    showError("Please wait before trying again.")
-    return
-  }
-
-  const username = document.getElementById('username').value.trim()
-  const password = document.getElementById('password').value
-  if(!username || !password){
-    showError("Enter username & password")
-    return
-  }
-
-  const { data, error } = await supabase
-    .from('users')
-    .select('id,username')
-    .eq('username', username)
-    .eq('password', password)
-    .maybeSingle()
-
-  if(error || !data){
+  if(cooldown){showError("Please wait before trying again.");return}
+  const u=document.getElementById('username').value.trim()
+  const p=document.getElementById('password').value
+  if(!u||!p){showError("Enter username & password");return}
+  const {data,error}=await supabase.from('users').select('id,username').eq('username',u).eq('password',p).maybeSingle()
+  if(error||!data){
     failCount++
-    if(failCount >= 5){
+    if(failCount>=5){
       showError("Please try again later")
-      cooldown = true
-      let delay = failCount > 5 ? 15000 : 10000
-      setTimeout(()=>cooldown=false, delay)
-    } else {
-      showError("Invalid username or password")
-    }
+      cooldown=true
+      let d=failCount>5?15000:10000
+      setTimeout(()=>cooldown=false,d)
+    } else showError("Invalid username or password")
     return
   }
-
-  setCookie('user', JSON.stringify({ id: data.id, username: data.username }), 7)
-  location.href = '/home'
+  setCookie('user',JSON.stringify({id:data.id,username:data.username}),7)
+  location.href='/home'
 }
 
-document.addEventListener('DOMContentLoaded', ()=>{
-  if(document.cookie.split('; ').some(c=>c.startsWith('user='))) return location.href='home.html'
-  document.getElementById('loginForm').addEventListener('submit', handleLogin)
+function applyTheme(t){
+  document.documentElement.setAttribute("data-theme",t)
+  setCookie("theme",t,365)
+  const icon=document.getElementById("themeIcon")
+  if(t==="dark") icon.className="icon moon"
+  else icon.className="icon sun"
+}
+
+document.addEventListener('DOMContentLoaded',()=>{
+  if(document.cookie.split('; ').some(c=>c.startsWith('user='))) location.href='home.html'
+  document.getElementById('loginForm').addEventListener('submit',handleLogin)
+
+  const saved=getCookie("theme")||"light"
+  applyTheme(saved)
+
+  document.getElementById("themeToggle").addEventListener("click",()=>{
+    const t=document.documentElement.getAttribute("data-theme")==="dark"?"light":"dark"
+    applyTheme(t)
+  })
 })
 </script>
 </head>
 
 <body>
-
-<!-- THEME SWITCH BUTTON -->
-<div class="theme-toggle">
-  <!-- SUN ICON -->
-  <svg class="sun" viewBox="0 0 24 24">
-    <path d="M12 18a6 6 0 100-12 6 6 0 000 12zm0-14V2m0 20v-2m10-8h-2M4 12H2m15.536 7.536l-1.414-1.414M6.879 6.879L5.464 5.464m0 13.072l1.415-1.414M17.657 6.879l1.414-1.415"/>
-  </svg>
-
-  <!-- MOON ICON -->
-  <svg class="moon" viewBox="0 0 24 24">
-    <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
-  </svg>
-</div>
-
-<div class="wrap" role="main">
-  <div class="header">
-    <img src="/assets/logo.png" alt="Logo" class="logo">
-    <div>
-      <h2>Sign in</h2>
-      <p class="lead">Access your account</p>
-    </div>
-  </div>
-
-  <form id="loginForm" novalidate>
-    <div class="input">
-      <label for="username">Username</label>
-      <input id="username" name="username" type="text" placeholder="Enter your username" required>
-    </div>
-
-    <div class="input">
-      <label for="password">Password</label>
-      <input id="password" name="password" type="password" placeholder="Enter your password" required>
-    </div>
-
-    <div class="actions">
-      <button type="submit">Sign in</button>
-      <div class="meta">
-        <span class="links">No account? <a href="/signup">Sign up</a></span>
+  <div class="wrap" role="main">
+    <div class="header">
+      <img src="/assets/logo.png" alt="Logo" class="logo">
+      <div>
+        <h2>Sign in</h2>
+        <p class="lead">Access your account</p>
       </div>
     </div>
-  </form>
 
-  <p class="error hidden" aria-live="polite"></p>
-  <div class="footer">Idawn™</div>
-</div>
+    <form id="loginForm" novalidate>
+      <div class="input">
+        <label for="username">Username</label>
+        <input id="username" name="username" type="text" placeholder="Enter your username" required>
+      </div>
 
+      <div class="input">
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" placeholder="Enter your password" required>
+      </div>
+
+      <div class="actions">
+        <button type="submit">Sign in</button>
+        <div class="meta">
+          <span class="links">No account? <a href="/signup">Sign up</a></span>
+        </div>
+      </div>
+    </form>
+
+    <p class="error hidden" aria-live="polite"></p>
+
+    <div class="footer">Idawn™</div>
+
+    <div class="theme-toggle" id="themeToggle">
+      <span id="themeIcon" class="icon sun"></span>
+      <span id="themeLabel"></span>
+    </div>
+  </div>
 </body>
 </html>
