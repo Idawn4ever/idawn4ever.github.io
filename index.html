@@ -189,7 +189,11 @@ a{color:var(--accent);text-decoration:none}
   cursor:pointer;
   user-select:none;
   font-size:14px;
-  color:var(--muted);
+  padding:6px 10px;
+  border-radius:10px;
+  background:var(--card);
+  box-shadow:var(--shadow);
+  color:var(--text);
 }
 
 .icon{
@@ -216,7 +220,7 @@ a{color:var(--accent);text-decoration:none}
 
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
-const supabase = createClient("https://thdzrkzdkdihjximoalb.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRoZHpya3pka2RpaGp4aW1vYWxiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAyNDkzNzIsImV4cCI6MjA3NTgyNTM3Mn0.uHpGricbNHVWsndClTd8K7LVRTCzWLF0ziwuGKvOSTw")
+const supabase=createClient("https://thdzrkzdkdihjximoalb.supabase.co","eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRoZHpya3pka2RpaGp4aW1vYWxiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAyNDkzNzIsImV4cCI6MjA3NTgyNTM3Mn0.uHpGricbNHVWsndClTd8K7LVRTCzWLF0ziwuGKvOSTw")
 
 function setCookie(n,v,d){document.cookie=n+"="+encodeURIComponent(v)+"; path=/; max-age="+(d*86400)}
 function getCookie(n){return document.cookie.split("; ").find(r=>r.startsWith(n+"="))?.split("=")[1]}
@@ -257,18 +261,22 @@ async function handleLogin(e){
 function applyTheme(t){
   document.documentElement.setAttribute("data-theme",t)
   setCookie("theme",t,365)
-  const icon=document.getElementById("themeIcon")
-  if(t==="dark") icon.className="icon moon"
-  else icon.className="icon sun"
+  const i=document.getElementById("themeIcon")
+  const l=document.getElementById("themeLabel")
+  if(t==="dark"){
+    i.className="icon moon"
+    l.textContent="Dark"
+  } else {
+    i.className="icon sun"
+    l.textContent="Light"
+  }
 }
 
 document.addEventListener('DOMContentLoaded',()=>{
   if(document.cookie.split('; ').some(c=>c.startsWith('user='))) location.href='home.html'
   document.getElementById('loginForm').addEventListener('submit',handleLogin)
-
   const saved=getCookie("theme")||"light"
   applyTheme(saved)
-
   document.getElementById("themeToggle").addEventListener("click",()=>{
     const t=document.documentElement.getAttribute("data-theme")==="dark"?"light":"dark"
     applyTheme(t)
@@ -312,7 +320,7 @@ document.addEventListener('DOMContentLoaded',()=>{
 
     <div class="theme-toggle" id="themeToggle">
       <span id="themeIcon" class="icon sun"></span>
-      <span id="themeLabel"></span>
+      <span id="themeLabel">Light</span>
     </div>
   </div>
 </body>
