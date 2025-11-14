@@ -6,110 +6,308 @@
 <title>Home</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <style>
-  :root{--bg:#000;--fg:lime;}
-  html,body{height:100%;margin:0;background:var(--bg);color:var(--fg);font-family:monospace}
-  .top{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid rgba(255,255,255,0.03)}
-  #homeLink{display:inline-block;text-decoration:none}
-  #logo{height:37px;width:auto;display:block}
-  .menu-btn{cursor:pointer;width:28px;height:20px;position:relative;border:none;background:transparent}
-  .menu-btn span,
-  .menu-btn::before,
-  .menu-btn::after{content:'';display:block;height:2px;width:100%;background:var(--fg);position:absolute;left:0;transition:.2s;}
-  .menu-btn span{top:9px;}
-  .menu-btn::before{top:0;}
-  .menu-btn::after{bottom:0;}
-  .sidebar{
-    position:fixed;
-    right:-260px;
-    top:0;
-    height:100%;
-    width:260px;
-    background:#050505;
-    border-left:1px solid rgba(255,255,255,0.03);
-    padding:16px;
-    transition:right .3s ease;
-    z-index:100;
-    visibility:hidden;
-    opacity:0;
-    display:flex;
-    flex-direction:column;
-    justify-content:space-between;
-  }
-  .sidebar.show{right:0;visibility:visible;opacity:1}
-  .sidebar-scroll{
-    overflow-y:auto;
-    flex-grow:1;
-    margin-bottom:16px;
-  }
-  .menu-links{
-    display:flex;
-    flex-direction:column;
-    gap:12px;
-    margin-top:20px;
-  }
-  .menu-links a{
-    border:1px solid var(--fg);
-    border-radius:8px;
-    padding:10px;
-    text-align:center;
-    text-decoration:none;
-    color:var(--fg);
-    transition:.2s;
-  }
-  .menu-links a:hover{
-    background:var(--fg);
-    color:#000;
-  }
-  .sidebar button{
-    border:none;
-    background:var(--fg);
-    color:#000;
-    cursor:pointer;
-    padding:10px;
-    border-radius:8px;
-    width:100%;
-  }
-  .overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);z-index:99}
-  .overlay.show{display:block}
-  .content{padding:24px;text-align:center; margin-bottom:40px;} /* bottom gap for footer */
-  .welcome-box{
-    border:1px solid var(--fg);
-    padding:24px;
-    margin:0 16px 16px 16px;
-    border-radius:4px;
-    height:calc(100vh - 64px - 32px - 24px); /* full height minus top bar, footer, padding */
-    display:flex;
-    flex-direction:column;
-  }
-  .welcome-msg{
-    margin:0;
-    padding-bottom:12px;
-    border-bottom:1px solid var(--fg);
-  }
-  .extra-content{
-    flex-grow:1;
-    padding-top:12px;
-    overflow-y:auto;
-  }
-  footer{position:fixed;bottom:0;width:100%;text-align:center;font-size:13px;padding:8px 0;border-top:1px solid rgba(255,255,255,0.03)}
-  footer a{color:var(--fg);margin:0 8px;text-decoration:none}
+/* --- STYLES FROM LOGIN.HTML --- */
+:root{
+  --bg:#f4f6f8;
+  --card:#ffffff;
+  --muted:#6b7280;
+  --text:#0f1724;
+  --accent:#06b6d4;
+  --hacker-accent: rgba(6, 182, 212, 0.06);
+  --error:#ef4444;
+  --radius:12px;
+  --glass: rgba(255,255,255,0.6);
+  --shadow: 0 8px 24px rgba(15,23,36,0.06);
+}
+html[data-theme="dark"]{
+  --bg:#0d1117;
+  --card:#161b22;
+  --muted:#8b949e;
+  --text:#e6edf3;
+  --accent:#00c4ff;
+  --hacker-accent: rgba(0, 196, 255, 0.08);
+  --error:#ff6b6b;
+  --glass: rgba(255,255,255,0.06);
+  --shadow: 0 8px 32px rgba(0,0,0,0.45);
+}
+
+*{box-sizing:border-box}
+html,body{
+  height:100%;
+  margin:0;
+  background:var(--bg); /* Use variable */
+  font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; /* Use login font */
+  color:var(--text); /* Use variable */
+  display:flex; /* Use flex to manage footer */
+  flex-direction:column; /* Stack body children vertically */
+}
+html[data-theme="dark"], html[data-theme="dark"] body{
+  background:var(--bg);
+}
+
+/* --- STYLES FOR HOME.HTML LAYOUT (ADAPTED) --- */
+.top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    background: var(--card); /* Use card background */
+    box-shadow: var(--shadow); /* Use shadow */
+    border-bottom: 1px solid var(--glass); /* Use glass for border */
+    position: sticky;
+    top: 0;
+    z-index: 101;
+}
+#homeLink { display: inline-block; text-decoration: none; }
+#logo { height: 37px; width: auto; display: block; }
+
+.menu-btn {
+    cursor: pointer;
+    width: 28px;
+    height: 20px;
+    position: relative;
+    border: none;
+    background: transparent;
+}
+.menu-btn span,
+.menu-btn::before,
+.menu-btn::after {
+    content: '';
+    display: block;
+    height: 2px;
+    width: 100%;
+    background: var(--text); /* Use text color */
+    position: absolute;
+    left: 0;
+    transition: .2s;
+}
+.menu-btn span { top: 9px; }
+.menu-btn::before { top: 0; }
+.menu-btn::after { bottom: 0; }
+
+.sidebar {
+    position: fixed;
+    right: -280px;
+    top: 0;
+    height: 100%;
+    width: 280px;
+    background: var(--card); /* Use card background */
+    box-shadow: var(--shadow); /* Use shadow */
+    padding: 16px;
+    transition: right .3s ease;
+    z-index: 1000;
+    visibility: hidden;
+    opacity: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+.sidebar.show { right: 0; visibility: visible; opacity: 1; }
+
+.sidebar-scroll {
+    overflow-y: auto;
+    flex-grow: 1;
+    margin-bottom: 16px;
+}
+
+.sidebar-header {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 10px;
+}
+
+.sidebar-user-info {
+    font-size: 14px;
+    color: var(--muted);
+}
+
+.menu-links {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 20px;
+}
+.menu-links a {
+    border: 1px solid var(--glass);
+    border-radius: 10px;
+    padding: 12px 14px;
+    text-align: center;
+    text-decoration: none;
+    color: var(--text);
+    font-weight: 600;
+    transition: .2s;
+}
+.menu-links a:hover {
+    background: var(--hacker-accent);
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+/* Logout button style (from login button) */
+#logout {
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: none;
+    background: linear-gradient(180deg, var(--accent), #0891b2);
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 14px;
+    box-shadow: 0 8px 24px rgba(8, 145, 178, 0.12);
+    transition: transform .08s, box-shadow .12s;
+    width: 100%;
+    margin-bottom: 16px; /* Space from theme toggle */
+}
+#logout:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 14px 36px rgba(8, 145, 178, 0.14);
+}
+
+.overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, .5);
+    z-index: 999;
+}
+.overlay.show { display: block; }
+
+.content {
+    padding: 24px;
+    flex-grow: 1; /* Makes content fill space */
+}
+.welcome-box {
+    background: var(--card);
+    border: 1px solid var(--glass);
+    padding: 24px;
+    margin: 0;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    min-height: 300px; /* Set a min-height */
+    display: flex;
+    flex-direction: column;
+}
+.welcome-msg {
+    margin: 0;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--glass);
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text);
+}
+.extra-content {
+    flex-grow: 1;
+    padding-top: 12px;
+    overflow-y: auto;
+}
+
+footer {
+    width: 100%;
+    text-align: center;
+    font-size: 13px;
+    padding: 16px 0;
+    border-top: 1px solid var(--glass);
+    color: var(--muted);
+    background: var(--card);
+}
+footer a {
+    color: var(--accent);
+    margin: 0 8px;
+    text-decoration: none;
+}
+
+/* --- THEME TOGGLE STYLES (FROM LOGIN) --- */
+.theme-toggle-sidebar { /* Renamed to avoid conflicts */
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    user-select: none;
+    font-size: 14px;
+    padding: 6px 10px;
+    border-radius: 10px;
+    background: var(--bg);
+    color: var(--text);
+    border: 1px solid var(--glass);
+    justify-content: center;
+}
+.icon{
+  width:20px;
+  height:20px;
+  display:inline-block;
+}
+.sun{
+  background:url('data:image/svg+xml;utf8,<svg fill="%23ffaa00" width="20" height="20" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><g stroke="%23ffaa00" stroke-width="2"><line x1="12" y1="1" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="23"/><line x1="4.2" y1="4.2" x2="6.3" y2="6.3"/><line x1="17.7" y1="17.7" x2="19.8" y2="19.8"/><line x1="1" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="23" y2="12"/><line x1="4.2" y1="19.8" x2="6.3" y2="17.7"/><line x1="17.7" y1="6.3" x2="19.8" y2="4.2"/></g></svg>') center/contain no-repeat;
+}
+.moon{
+  background:url('data:image/svg+xml;utf8,<svg fill="%23cfcfcf" width="20" height="20" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 0111.21 3 7 7 0 1019 14.79 9 9 0 0121 12.79z"/></svg>') center/contain no-repeat;
+}
+
+@media (max-width:420px){
+  .content { padding: 16px; }
+  .welcome-box { padding: 16px; }
+}
 </style>
 
 <script>
-function getCookie(name){
+// --- COOKIE & THEME HELPERS (FROM LOGIN) ---
+function setCookie(n,v,d){
+    document.cookie=n+"="+encodeURIComponent(v)+"; path=/; max-age="+(d*86400)
+}
+
+function getCookie(n){
+    return document.cookie.split("; ").find(r=>r.startsWith(n+"="))?.split("=")[1]
+}
+
+function getCookieJSON(name){
   const c = document.cookie.split('; ').find(r=>r.startsWith(name+'='))
   if(!c) return null
   try{ return JSON.parse(decodeURIComponent(c.split('=')[1])) }catch(e){ return null }
 }
-function clearCookie(name){ document.cookie = name + '=; path=/; max-age=0' }
 
+function clearCookie(name){ 
+    document.cookie = name + '=; path=/; max-age=0' 
+}
+
+function applyTheme(t){
+  document.documentElement.setAttribute("data-theme",t)
+  setCookie("theme",t,365) // Save theme choice
+  const i=document.getElementById("themeIcon")
+  const l=document.getElementById("themeLabel")
+  if(!i || !l) return; // Safety check
+  
+  if(t==="dark"){
+    i.className="icon moon"
+    l.textContent="Dark"
+  } else {
+    i.className="icon sun"
+    l.textContent="Light"
+  }
+}
+
+// --- MAIN SCRIPT LOGIC (MERGED) ---
 document.addEventListener('DOMContentLoaded', ()=>{
-  const user = getCookie('user')
-  if(!user) return location.href='index.html'
+  // --- 1. APPLY THEME (RUNS FIRST) ---
+  const savedTheme = getCookie("theme") || "light"
+  applyTheme(savedTheme)
+  
+  document.getElementById("themeToggle").addEventListener("click",()=>{
+    const t=document.documentElement.getAttribute("data-theme")==="dark"?"light":"dark"
+    applyTheme(t)
+  })
+  
+  // --- 2. AUTH LOGIC ---
+  const user = getCookieJSON('user')
+  if(!user) return location.href='index.html' // Redirect if no user
 
   document.getElementById('uname2').textContent = user.username
   document.getElementById('welcomeMsg').textContent = "Welcome Back, " + user.username
 
+  // --- 3. SIDEBAR LOGIC ---
   const sidebar = document.getElementById('sidebar')
   const overlay = document.getElementById('overlay')
   const menuBtn = document.getElementById('menuBtn')
@@ -121,6 +319,8 @@ document.addEventListener('DOMContentLoaded', ()=>{
 
   menuBtn.addEventListener('click', ()=> toggleSidebar(!sidebar.classList.contains('show')))
   overlay.addEventListener('click', ()=> toggleSidebar(false))
+  
+  // --- 4. LOGOUT LOGIC ---
   document.getElementById('logout').addEventListener('click', ()=>{
     clearCookie('user')
     location.href='index.html'
@@ -129,37 +329,45 @@ document.addEventListener('DOMContentLoaded', ()=>{
 </script>
 </head>
 <body>
-  <div class="top">
-    <a href="/home" id="homeLink" title="Home"><img id="logo" src="assets/logo.png" alt="Idawn Logo"></a>
-    <button id="menuBtn" class="menu-btn"><span></span></button>
-  </div>
+  <div class="top">
+    <a href="/home" id="homeLink" title="Home"><img id="logo" src="assets/logo.png" alt="Idawn Logo"></a>
+    <button id="menuBtn" class="menu-btn" aria-label="Open menu"><span></span></button>
+  </div>
 
-  <div id="sidebar" class="sidebar">
-    <div class="sidebar-scroll">
-      <div>Account</div>
-      <div style="margin-top:10px">Logged in as <strong id="uname2"></strong></div>
-      <div class="menu-links">
-        <a href="/livechat">Live Chat</a>
-        <a href="/leaks">Leaks</a>
-        <a href="/shop/home">Shop</a>
+  <div id="sidebar" class="sidebar">
+    <div class="sidebar-scroll">
+      <div class="sidebar-header">Account</div>
+      <div class="sidebar-user-info" style="margin-top:10px">Logged in as <strong id="uname2"></strong></div>
+      <div class="menu-links">
+        <a href="/livechat">Live Chat</a>
+        <a href="/leaks">Leaks</a>
+        <a href="/shop/home">Shop</a>
+      </div>
+    </div>
+    
+    <div>
+      <button id="logout">Log Out</button>
+      
+      <div class="theme-toggle-sidebar" id="themeToggle">
+        <span id="themeIcon" class="icon sun"></span>
+        <span id="themeLabel">Light</span>
       </div>
     </div>
-    <button id="logout" style="margin-bottom:16px;">Log Out</button>
-  </div>
+  </div>
 
-  <div id="overlay" class="overlay"></div>
+  <div id="overlay" class="overlay"></div>
 
-  <div class="content">
-    <div class="welcome-box">
-      <p id="welcomeMsg" class="welcome-msg">Welcome Back</p>
-      <div class="extra-content" id="extraContent">
-        <!-- here -->
-      </div>
-    </div>
-  </div>
+  <div class="content">
+    <div class="welcome-box">
+      <p id="welcomeMsg" class="welcome-msg">Welcome Back</p>
+      <div class="extra-content" id="extraContent">
+        <p style="margin-top: 16px; color: var(--muted);">This is your new home page.</p>
+      </div>
+    </div>
+  </div>
 
-  <footer>
-    <a href="/contact">Contact</a> | Idawn™
-  </footer>
+  <footer>
+    <a href="/contact">Contact</a> | Idawn™
+  </footer>
 </body>
 </html>
