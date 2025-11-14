@@ -6,7 +6,6 @@
 <title>Home</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <style>
-
 :root{
   --bg:#f4f6f8;
   --card:#ffffff;
@@ -33,29 +32,27 @@ html[data-theme="dark"]{
 
 *{box-sizing:border-box}
 
-
 html,body{
   height:100%;
   margin:0;
-  background:linear-gradient(180deg,var(--bg),#e9eef2); 
+  background:linear-gradient(180deg,var(--bg),#e9eef2);
   font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; 
   color:var(--text); 
-  display:flex; 
-  flex-direction:column; 
+  display:flex;
+  flex-direction:column;
 }
 html[data-theme="dark"], html[data-theme="dark"] body{
-  background:linear-gradient(180deg,#0d1117,#06080a); 
+  background:linear-gradient(180deg,#0d1117,#06080a);
 }
-
 
 .top {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 12px 16px;
-    background: var(--card); 
-    box-shadow: var(--shadow); 
-    border-bottom: 1px solid var(--glass); 
+    background: var(--card);
+    box-shadow: var(--shadow);
+    border-bottom: 1px solid var(--glass);
     position: sticky;
     top: 0;
     z-index: 101;
@@ -78,7 +75,7 @@ html[data-theme="dark"], html[data-theme="dark"] body{
     display: block;
     height: 2px;
     width: 100%;
-    background: var(--text); 
+    background: var(--text);
     position: absolute;
     left: 0;
     transition: .2s;
@@ -93,8 +90,8 @@ html[data-theme="dark"], html[data-theme="dark"] body{
     top: 0;
     height: 100%;
     width: 280px;
-    background: var(--card); 
-    box-shadow: var(--shadow); 
+    background: var(--card);
+    box-shadow: var(--shadow);
     padding: 16px;
     transition: right .3s ease;
     z-index: 1000;
@@ -146,7 +143,6 @@ html[data-theme="dark"], html[data-theme="dark"] body{
     color: var(--accent);
 }
 
-
 #logout {
     padding: 12px 14px;
     border-radius: 10px;
@@ -159,7 +155,7 @@ html[data-theme="dark"], html[data-theme="dark"] body{
     box-shadow: 0 8px 24px rgba(8, 145, 178, 0.12);
     transition: transform .08s, box-shadow .12s;
     width: 100%;
-    margin-bottom: 16px; 
+    margin-bottom: 16px;
 }
 #logout:hover {
     transform: translateY(-3px);
@@ -180,7 +176,7 @@ html[data-theme="dark"], html[data-theme="dark"] body{
 
 .content {
     padding: 24px;
-    flex-grow: 1; 
+    flex-grow: 1;
 }
 .welcome-box {
     background: var(--card);
@@ -189,7 +185,7 @@ html[data-theme="dark"], html[data-theme="dark"] body{
     margin: 0;
     border-radius: var(--radius);
     box-shadow: var(--shadow);
-    min-height: 300px; 
+    min-height: 300px;
     display: flex;
     flex-direction: column;
 }
@@ -222,7 +218,7 @@ footer a {
     text-decoration: none;
 }
 
-.theme-toggle-sidebar { 
+.theme-toggle-sidebar {
     display: flex;
     align-items: center;
     gap: 8px;
@@ -255,7 +251,6 @@ footer a {
 </style>
 
 <script>
-
 function setCookie(n,v,d){
     document.cookie=n+"="+encodeURIComponent(v)+"; path=/; max-age="+(d*86400)
 }
@@ -276,10 +271,10 @@ function clearCookie(name){
 
 function applyTheme(t){
   document.documentElement.setAttribute("data-theme",t)
-  setCookie("theme",t,365) 
+  setCookie("theme",t,365)
   const i=document.getElementById("themeIcon")
   const l=document.getElementById("themeLabel")
-  if(!i || !l) return; 
+  if(!i || !l) return;
   
   if(t==="dark"){
     i.className="icon moon"
@@ -290,9 +285,7 @@ function applyTheme(t){
   }
 }
 
-
 document.addEventListener('DOMContentLoaded', ()=>{
-   ---
   const savedTheme = getCookie("theme") || "light"
   applyTheme(savedTheme)
   
@@ -301,14 +294,12 @@ document.addEventListener('DOMContentLoaded', ()=>{
     applyTheme(t)
   })
   
-  
   const user = getCookieJSON('user')
-  if(!user) return location.href='index.html' // Redirect if no user
+  if(!user) return location.href='index.html'
 
   document.getElementById('uname2').textContent = user.username
   document.getElementById('welcomeMsg').textContent = "Welcome Back, " + user.username
 
-  
   const sidebar = document.getElementById('sidebar')
   const overlay = document.getElementById('overlay')
   const menuBtn = document.getElementById('menuBtn')
@@ -320,7 +311,6 @@ document.addEventListener('DOMContentLoaded', ()=>{
 
   menuBtn.addEventListener('click', ()=> toggleSidebar(!sidebar.classList.contains('show')))
   overlay.addEventListener('click', ()=> toggleSidebar(false))
-  
   
   document.getElementById('logout').addEventListener('click', ()=>{
     clearCookie('user')
@@ -348,7 +338,6 @@ document.addEventListener('DOMContentLoaded', ()=>{
     
     <div>
       <button id="logout">Log Out</button>
-      
       <div class="theme-toggle-sidebar" id="themeToggle">
         <span id="themeIcon" class="icon sun"></span>
         <span id="themeLabel">Light</span>
@@ -362,7 +351,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
     <div class="welcome-box">
       <p id="welcomeMsg" class="welcome-msg">Welcome Back</p>
       <div class="extra-content" id="extraContent">
-              </div>
+      </div>
     </div>
   </div>
 
