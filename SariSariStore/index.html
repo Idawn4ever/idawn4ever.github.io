@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SariSari Store | Everyday Essentials</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100">
+    <!-- Header -->
+    <header class="bg-white shadow-md sticky top-0 z-10">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+            <h1 class="text-3xl font-bold text-green-600">SariSari Store</h1>
+            <nav class="space-x-6">
+                <a href="index.html" class="text-gray-700 hover:text-green-600">Home</a>
+                <a href="#products" class="text-gray-700 hover:text-green-600">Shop</a>
+                <a href="tos.html" class="text-gray-700 hover:text-green-600">ToS</a>
+                <a href="help.html" class="text-gray-700 hover:text-green-600">Help</a>
+                <a href="support.html" class="text-gray-700 hover:text-green-600">Support</a>
+                <a href="admin.html" class="text-gray-700 hover:text-green-600">Admin</a>
+            </nav>
+            <button onclick="showCart()" class="bg-green-600 text-white px-6 py-2 rounded-lg"><i class="fas fa-shopping-cart mr-2"></i>Cart (<span id="cartCount">0</span>)</button>
+        </div>
+    </header>
+
+    <!-- Hero -->
+    <section class="bg-gradient-to-r from-green-500 to-teal-600 text-white py-20 text-center">
+        <h2 class="text-5xl font-bold mb-4">Your One-Stop SariSari Store Online</h2>
+        <p class="text-xl">Quality everyday essentials delivered fast. Dropshipped from trusted suppliers.</p>
+    </section>
+
+    <!-- Products -->
+    <section id="products" class="max-w-7xl mx-auto px-4 py-16">
+        <h2 class="text-4xl font-bold text-center mb-12">Our Products</h2>
+        <div class="grid md:grid-cols-4 gap-8" id="productGrid"></div>
+    </section>
+
+    <!-- Cart Modal -->
+    <div id="cartModal" class="fixed inset-0 bg-black/50 hidden flex items-center justify-center z-50">
+        <div class="bg-white rounded-xl p-8 max-w-3xl w-full">
+            <h3 class="text-3xl font-bold mb-6">Your Cart</h3>
+            <div id="cartItems"></div>
+            <p class="text-2xl font-bold mt-6">Total: $<span id="cartTotal">0.00</span></p>
+            <button onclick="checkout()" class="mt-6 bg-green-600 text-white px-8 py-4 rounded-lg">Proceed to Checkout</button>
+            <button onclick="hideCart()" class="mt-4 ml-4 text-gray-600">Close</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
