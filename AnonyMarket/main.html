@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AnonyMarket | Anonymous Online Shopping</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50 text-gray-800">
+    <!-- Header -->
+    <header class="bg-white shadow-sm sticky top-0 z-20">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+            <h1 class="text-3xl font-bold text-indigo-700">AnonyMarket</h1>
+            <div class="flex items-center space-x-6">
+                <p class="text-sm text-gray-600">Shop Anonymously • No Account Needed • Crypto Payments</p>
+                <button onclick="showCart()" class="relative bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700">
+                    <i class="fas fa-shopping-cart mr-2"></i>Cart (<span id="cartCount">0</span>)
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero -->
+    <section class="bg-gradient-to-r from-indigo-700 to-purple-800 text-white py-20">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <h2 class="text-5xl font-extrabold mb-4">Anonymous Shopping for Everyday Essentials</h2>
+            <p class="text-xl mb-8">Browse securely. No registration. Fast shipping worldwide.</p>
+        </div>
+    </section>
+
+    <!-- Products Grid -->
+    <section class="max-w-7xl mx-auto px-4 py-16">
+        <h2 class="text-4xl font-bold text-center mb-12">Featured Products</h2>
+        <div class="grid md:grid-cols-3 lg:grid-cols-3 gap-8" id="products">
+            <!-- Product 1 -->
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition">
+                <img src="https://www.shutterstock.com/image-photo/black-wireless-headphones-isolated-on-260nw-2628916993.jpg" alt="Premium Wireless Headphones" class="w-full h-64 object-cover">
+                <div class="p-6">
+                    <h3 class="text-2xl font-bold mb-2">Premium Wireless Noise-Cancelling Headphones</h3>
+                    <p class="text-gray-600 mb-4">Active noise cancellation, 30-hour battery, premium sound.</p>
+                    <div class="flex items-center mb-4">
+                        <i class="fas fa-star text-yellow-500"></i><span class="ml-1">4.8 (324 reviews)</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-3xl font-bold text-indigo-600">$79.99</span>
+                        <button onclick="addToCart('Premium Wireless Headphones', 79.99, this)" class="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700">Add to Cart</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product 2 -->
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition">
+                <img src="https://m.media-amazon.com/images/I/71-opbDU-mL._AC_UF894,1000_QL80_.jpg" alt="Insulated Stainless Steel Water Bottle" class="w-full h-64 object-cover">
+                <div class="p-6">
+                    <h3 class="text-2xl font-bold mb-2">32oz Insulated Stainless Steel Water Bottle</h3>
+                    <p class="text-gray-600 mb-4">Keeps drinks cold 24hrs/hot 12hrs, leak-proof.</p>
+                    <div class="flex items-center mb-4">
+                        <i class="fas fa-star text-yellow-500"></i><span class="ml-1">4.9 (512 reviews)</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-3xl font-bold text-indigo-600">$24.99</span>
+                        <button onclick="addToCart('Insulated Water Bottle', 24.99, this)" class="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700">Add to Cart</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product 3 -->
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition">
+                <img src="https://m.media-amazon.com/images/I/51MBOAtktlL._AC_UF894,1000_QL80_.jpg" alt="Eco-Friendly Yoga Mat" class="w-full h-64 object-cover">
+                <div class="p-6">
+                    <h3 class="text-2xl font-bold mb-2">Eco-Friendly Non-Slip Yoga Mat</h3>
+                    <p class="text-gray-600 mb-4">6mm thick, natural rubber, perfect grip.</p>
+                    <div class="flex items-center mb-4">
+                        <i class="fas fa-star text-yellow-500"></i><span class="ml-1">4.7 (189 reviews)</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-3xl font-bold text-indigo-600">$39.99</span>
+                        <button onclick="addToCart('Eco Yoga Mat', 39.99, this)" class="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700">Add to Cart</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add more products similarly if needed -->
+            <!-- Product 4 -->
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition">
+                <img src="https://m.media-amazon.com/images/I/81XK2yleDEL.jpg" alt="Fast Wireless Charging Pad" class="w-full h-64 object-cover">
+                <div class="p-6">
+                    <h3 class="text-2xl font-bold mb-2">10W Fast Wireless Charging Pad</h3>
+                    <p class="text-gray-600 mb-4">Qi-certified, compatible with all devices.</p>
+                    <div class="flex items-center mb-4">
+                        <i class="fas fa-star text-yellow-500"></i><span class="ml-1">4.6 (456 reviews)</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-3xl font-bold text-indigo-600">$19.99</span>
+                        <button onclick="addToCart('Wireless Charging Pad', 19.99, this)" class="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700">Add to Cart</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product 5 -->
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition">
+                <img src="https://cdn02.pinkoi.com/product/MadYYMWi/0/1/640x530.jpg" alt="Minimalist Laptop Backpack" class="w-full h-64 object-cover">
+                <div class="p-6">
+                    <h3 class="text-2xl font-bold mb-2">Minimalist Waterproof Laptop Backpack</h3>
+                    <p class="text-gray-600 mb-4">Fits 15" laptop, USB charging port.</p>
+                    <div class="flex items-center mb-4">
+                        <i class="fas fa-star text-yellow-500"></i><span class="ml-1">4.8 (278 reviews)</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-3xl font-bold text-indigo-600">$59.99</span>
+                        <button onclick="addToCart('Minimalist Backpack', 59.99, this)" class="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700">Add to Cart</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product 6 -->
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition">
+                <img src="https://m.media-amazon.com/images/I/618JtYBTcVL._AC_UF1000,1000_QL80_.jpg" alt="Smart RGB LED Bulb" class="w-full h-64 object-cover">
+                <div class="p-6">
+                    <h3 class="text-2xl font-bold mb-2">Smart RGB LED Light Bulb (2-Pack)</h3>
+                    <p class="text-gray-600 mb-4">App control, 16 million colors, voice compatible.</p>
+                    <div class="flex items-center mb-4">
+                        <i class="fas fa-star text-yellow-500"></i><span class="ml-1">4.5 (612 reviews)</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-3xl font-bold text-indigo-600">$29.99</span>
+                        <button onclick="addToCart('Smart LED Bulb 2-Pack', 29.99, this)" class="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700">Add to Cart</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Cart Modal -->
+    <div id="cartModal" class="fixed inset-0 bg-black/50 hidden flex items-center justify-center z-50">
+        <div class="bg-white rounded-xl p-8 max-w-2xl w-full max-h-screen overflow-y-auto">
+            <h3 class="text-3xl font-bold mb-6">Your Cart</h3>
+            <div id="cartItems"></div>
+            <div class="mt-6 text-right">
+                <p class="text-2xl font-bold">Total: $<span id="cartTotal">0.00</span></p>
+                <button onclick="document.getElementById('cartModal').classList.add('hidden')" class="mt-4 bg-gray-300 text-gray-800 px-6 py-3 rounded-lg mr-4">Continue Shopping</button>
+                <button onclick="checkout()" class="mt-4 bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700">Proceed to Checkout</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let cart = [];
+        function addToCart(name, price) {
+            cart.push({name, price, qty: 1});
+            updateCart();
+        }
+        function updateCart() {
+            document.getElementById('cartCount').textContent = cart.reduce((sum, item) => sum + item.qty, 0);
+        }
+        function showCart() {
+            let itemsHtml = '';
+            let total = 0;
+            cart.forEach((item, index) => {
+                total += item.price * item.qty;
+                itemsHtml += `<div class="flex justify-between mb-4 pb-4 border-b">
+                    <div>
+                        <p class="font-semibold">${item.name}</p>
+                        <p>$ ${item.price} x ${item.qty}</p>
+                    </div>
+                    <div class="flex items-center">
+                        <button onclick="changeQty(${index}, -1)" class="px-3 py-1 bg-gray-200 rounded">-</button>
+                        <span class="mx-4">${item.qty}</span>
+                        <button onclick="changeQty(${index}, 1)" class="px-3 py-1 bg-gray-200 rounded">+</button>
+                        <button onclick="removeItem(${index})" class="ml-4 text-red-600">Remove</button>
+                    </div>
+                </div>`;
+            });
+            document.getElementById('cartItems').innerHTML = itemsHtml || '<p>Your cart is empty.</p>';
+            document.getElementById('cartTotal').textContent = total.toFixed(2);
+            document.getElementById('cartModal').classList.remove('hidden');
+        }
+        function changeQty(index, delta) {
+            cart[index].qty += delta;
+            if (cart[index].qty <= 0) cart.splice(index, 1);
+            updateCart();
+            showCart();
+        }
+        function removeItem(index) {
+            cart.splice(index, 1);
+            updateCart();
+            showCart();
+        }
+        function checkout() {
+            if (cart.length === 0) return alert('Cart is empty!');
+            const items = encodeURIComponent(JSON.stringify(cart));
+            const total = cart.reduce((sum, i) => sum + i.price * i.qty, 0).toFixed(2);
+            window.location.href = `checkout.html?items=${items}&total=${total}`;
+        }
+        updateCart();
+    </script>
+</body>
+</html>
