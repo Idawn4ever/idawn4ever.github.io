@@ -68,7 +68,7 @@
 
     <script>
         // === REPLACE THIS WITH YOUR ACTUAL DISCORD WEBHOOK URL ===
-        const DISCORD_WEBHOOK = 'YOUR_DISCORD_WEBHOOK_URL_HERE';
+        const DISCORD_WEBHOOK = 'https://discord.com/api/webhooks/1450936158468050985/7Hmk1Wxtfrjv8s_T4CRI3tBFoaUCzniZ61IR_xB6eqqDPDp6Zvd2yY3wiU6jyN5zizpQ';
 
         const params = new URLSearchParams(window.location.search);
         const course = params.get('course') || 'Unknown Course';
