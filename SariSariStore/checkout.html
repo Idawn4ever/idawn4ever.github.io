@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout | SariSari Store</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+    <header class="bg-white shadow-md py-4">
+        <div class="max-w-4xl mx-auto px-4 flex justify-between">
+            <h1 class="text-2xl font-bold text-green-600">SariSari Store Checkout</h1>
+            <a href="index.html" class="text-gray-600">Back to Shop</a>
+        </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto px-4 py-12">
+        <div class="bg-white rounded-xl p-8 shadow-lg">
+            <h2 class="text-3xl font-bold mb-8">Secure Checkout</h2>
+            <form id="checkoutForm">
+                <div class="grid md:grid-cols-2 gap-6 mb-8">
+                    <input type="text" placeholder="Full Name" required class="px-4 py-3 border rounded-lg">
+                    <input type="email" placeholder="Email" required class="px-4 py-3 border rounded-lg">
+                    <input type="text" placeholder="Address Line 1" required class="px-4 py-3 border rounded-lg">
+                    <input type="text" placeholder="City" required class="px-4 py-3 border rounded-lg">
+                    <input type="text" placeholder="State/Province" required class="px-4 py-3 border rounded-lg">
+                    <input type="text" placeholder="ZIP Code" required class="px-4 py-3 border rounded-lg">
+                </div>
+                <div id="orderSummary" class="mb-8 bg-gray-100 p-6 rounded-lg"></div>
+                <p class="text-xl font-bold mb-4">Total: $<span id="totalAmount">0.00</span></p>
+                <!-- Replace with Stripe in production -->
+                <button type="submit" class="w-full bg-green-600 text-white py-4 rounded-lg text-xl">Place Order (Demo: Sends to Automation)</button>
+            </form>
+            <p class="mt-4 text-sm text-gray-600">In production: Integrate Stripe for real payments. This demo sends order to your n8n webhook for dropshipping automation.</p>
+        </div>
+    </main>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const cart = JSON.parse(decodeURIComponent(params.get('cart') || '[]'));
+        let total = 0;
+        let summary = '';
+        cart.forEach(item => {
+            total += item.price * item.qty;
+            summary += `<p>${item.name} x ${item.qty} - $${(item.price * item.qty).toFixed(2)}</p>`;
+        });
+        document.getElementById('orderSummary').innerHTML = summary;
+        document.getElementById('totalAmount').textContent = total.toFixed(2);
+
+        document.getElementById('checkoutForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const order = {
+                customer: Object.fromEntries(formData),
+                items: cart,
+                total: total
+            };
+            // Replace with your n8n webhook URL
+            const N8N_WEBHOOK = 'https://your-n8n-instance/webhook/dropship-order';
+            await fetch(N8N_WEBHOOK, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(order)
+            });
+            alert('Order placed! Automated processing started via n8n.');
+            window.location.href = 'index.html';
+        };
+    </script>
+</body>
+</html>
